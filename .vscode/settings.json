@@ -1,0 +1,22 @@
+{
+  "typescript.preferences.useAliasesForRenames": false,
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.validate": ["typescript"],
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.env": false
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/logs": true
+  },
+  "jest.jestCommandLine": "npm test",
+  "prisma.showPrismaDataPlatformNotification": false
+}
