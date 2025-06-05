@@ -2,6 +2,8 @@ import { Router } from "express";
 import userRoutes from "./userRoutes";
 import accountRoutes from "./accountRoutes";
 import transactionRoutes from "./transactionRoutes";
+import auditRoutes from "./auditRoutes";
+import bulkTransactionRoutes from "./bulkTransactionRoutes";
 
 /**
  * @swagger
@@ -14,6 +16,10 @@ import transactionRoutes from "./transactionRoutes";
  *     description: Bank account management operations
  *   - name: Transactions
  *     description: Financial transaction operations
+ *   - name: Bulk Transactions
+ *     description: Bulk transaction processing operations
+ *   - name: Audit
+ *     description: Audit log access and reporting
  *   - name: Admin - Users
  *     description: Administrative user management (Admin only)
  *   - name: Admin - Accounts
@@ -67,5 +73,7 @@ router.get("/health", (req, res) => {
 router.use("/users", userRoutes);
 router.use("/accounts", accountRoutes);
 router.use("/transactions", transactionRoutes);
+router.use("/audit", auditRoutes);
+router.use("/bulk-transactions", bulkTransactionRoutes);
 
 export default router;
