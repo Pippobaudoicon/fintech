@@ -38,6 +38,20 @@ enum TransactionStatus {
   CANCELLED
 }
 
+enum BulkTransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  PARTIALLY_COMPLETED
+}
+
+enum BulkTransactionItemStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
 enum KYCStatus {
   NOT_STARTED
   IN_PROGRESS
@@ -65,11 +79,12 @@ model User {
   updatedAt   DateTime @updatedAt
 
   // Relations
-  accounts     Account[]
-  transactions Transaction[]
-  sessions     Session[]
-  notifications Notification[]
-  auditLogs    AuditLog[]
+  accounts       Account[]
+  transactions   Transaction[]
+  sessions       Session[]
+  notifications  Notification[]
+  auditLogs      AuditLog[]
+  bulkTransactionBatches BulkTransactionBatch[]
 
   @@map("users")
 }
@@ -89,6 +104,8 @@ model Account {
   user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactionsFrom    Transaction[] @relation("FromAccount")
   transactionsTo      Transaction[] @relation("ToAccount")
+  bulkTransactionItemsFrom BulkTransactionItem[] @relation("BulkFromAccount")
+  bulkTransactionItemsTo   BulkTransactionItem[] @relation("BulkToAccount")
 
   @@map("accounts")
 }
@@ -112,8 +129,54 @@ model Transaction {
   fromAccount   Account? @relation("FromAccount", fields: [fromAccountId], references: [id])
   toAccountId   String?
   toAccount     Account? @relation("ToAccount", fields: [toAccountId], references: [id])
+  bulkTransactionItem BulkTransactionItem?
 
   @@map("transactions")
+}
+
+model BulkTransactionBatch {
+  id                    String                 @id @default(cuid())
+  status                BulkTransactionStatus  @default(PENDING)
+  totalTransactions     Int
+  successfulTransactions Int                   @default(0)
+  failedTransactions    Int                    @default(0)
+  scheduledFor          DateTime?
+  createdAt             DateTime               @default(now())
+  startedAt             DateTime?
+  completedAt           DateTime?
+  updatedAt             DateTime               @updatedAt
+
+  // Relations
+  createdBy String
+  user      User                    @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  items     BulkTransactionItem[]
+
+  @@map("bulk_transaction_batches")
+}
+
+model BulkTransactionItem {
+  id            String                     @id @default(cuid())
+  itemIndex     Int
+  amount        Decimal                    @db.Decimal(15, 2)
+  currency      String                     @default("USD")
+  description   String?
+  reference     String?
+  status        BulkTransactionItemStatus  @default(PENDING)
+  errorMessage  String?
+  processedAt   DateTime?
+  createdAt     DateTime                   @default(now())
+
+  // Relations
+  batchId       String
+  batch         BulkTransactionBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  fromAccountId String
+  fromAccount   Account              @relation("BulkFromAccount", fields: [fromAccountId], references: [id])
+  toAccountId   String
+  toAccount     Account              @relation("BulkToAccount", fields: [toAccountId], references: [id])
+  transactionId String?              @unique
+  transaction   Transaction?         @relation(fields: [transactionId], references: [id])
+
+  @@map("bulk_transaction_items")
 }
 
 model Session {
