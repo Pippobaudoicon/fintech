@@ -2,6 +2,7 @@
   "info": {
     "name": "Fintech API",
     "description": "Comprehensive API collection for testing the fintech backend",
+    "version": "2.0.0",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -49,8 +50,14 @@
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/v1/health",
-          "host": ["{{base_url}}"],
-          "path": ["api", "v1", "health"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "health"
+          ]
         }
       },
       "response": []
@@ -85,12 +92,19 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe.test@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"phone\": \"+1234567890\",\n  \"dateOfBirth\": \"1990-01-15\"\n}"
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe.test@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"phone\": \"1234567890\",\n  \"dateOfBirth\": \"1990-01-15\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/v1/users/register",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "users", "register"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "register"
+              ]
             }
           }
         },
@@ -126,8 +140,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/v1/users/login",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "users", "login"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "login"
+              ]
             }
           }
         },
@@ -148,8 +169,15 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/v1/users/profile",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "users", "profile"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "profile"
+              ]
             }
           }
         },
@@ -179,8 +207,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/v1/users/profile",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "users", "profile"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "profile"
+              ]
             }
           }
         },
@@ -201,8 +236,15 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/v1/users/logout",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "users", "logout"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "logout"
+              ]
             }
           }
         }
@@ -252,8 +294,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/v1/accounts",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "accounts"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "accounts"
+              ]
             }
           }
         },
@@ -283,11 +331,18 @@
             },
             "url": {
               "raw": "{{base_url}}/api/v1/accounts",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "accounts"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "accounts"
+              ]
             }
           }
-        },        {
+        },
+        {
           "name": "Get User Accounts",
           "request": {
             "auth": {
@@ -303,9 +358,16 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/v1/accounts/my-accounts",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "accounts", "my-accounts"]
+              "raw": "{{base_url}}/api/v1/accounts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "accounts",
+                "my-accounts"
+              ]
             }
           }
         },
@@ -326,11 +388,19 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/v1/accounts/{{account_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "accounts", "{{account_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "accounts",
+                "{{account_id}}"
+              ]
             }
           }
-        },        {
+        },
+        {
           "name": "Get Account Balance",
           "request": {
             "auth": {
@@ -347,8 +417,16 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/v1/accounts/{{account_id}}/balance",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "accounts", "{{account_id}}", "balance"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "accounts",
+                "{{account_id}}",
+                "balance"
+              ]
             }
           }
         },
@@ -369,8 +447,15 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/v1/accounts/summary",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "accounts", "summary"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "accounts",
+                "summary"
+              ]
             }
           }
         }
@@ -420,8 +505,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/v1/transactions",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "transactions"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transactions"
+              ]
             }
           }
         },
@@ -451,8 +542,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/v1/transactions",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "transactions"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transactions"
+              ]
             }
           }
         },
@@ -473,8 +570,14 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/v1/transactions?page=1&limit=10",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "transactions"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transactions"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -505,11 +608,19 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/v1/transactions/{{transaction_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "transactions", "{{transaction_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transactions",
+                "{{transaction_id}}"
+              ]
             }
           }
-        },        {
+        },
+        {
           "name": "Get Account Transactions",
           "request": {
             "auth": {
@@ -526,8 +637,16 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/v1/accounts/{{account_id}}/transactions",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "accounts", "{{account_id}}", "transactions"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "accounts",
+                "{{account_id}}",
+                "transactions"
+              ]
             }
           }
         },
@@ -548,8 +667,15 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/v1/transactions/analytics?startDate=2024-01-01&endDate=2024-12-31",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "transactions", "analytics"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transactions",
+                "analytics"
+              ],
               "query": [
                 {
                   "key": "startDate",
@@ -594,8 +720,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/v1/transactions/transfer",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "transactions", "transfer"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transactions",
+                "transfer"
+              ]
             }
           }
         }
@@ -621,8 +754,14 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/v1/users?page=1&limit=10",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "users"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -662,8 +801,16 @@
             },
             "url": {
               "raw": "{{base_url}}/api/v1/users/{{user_id}}/role",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "users", "{{user_id}}", "role"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{user_id}}",
+                "role"
+              ]
             }
           }
         }
@@ -689,8 +836,15 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/v1/users/notifications?page=1&limit=10",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "users", "notifications"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "notifications"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -721,8 +875,377 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/v1/users/notifications/read-all",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "users", "notifications", "read-all"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "notifications",
+                "read-all"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bulk Transactions",
+      "item": [
+        {
+          "name": "Create Bulk Transaction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 202) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data.batchId) {",
+                  "        pm.collectionVariables.set('batch_id', response.data.batchId);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transactions\": [\n    {\n      \"fromAccountId\": \"{{account_id}}\",\n      \"toAccountId\": \"{{account_id_2}}\",\n      \"amount\": 100.50,\n      \"description\": \"Bulk payment 1\",\n      \"reference\": \"REF001\"\n    },\n    {\n      \"fromAccountId\": \"{{account_id}}\",\n      \"toAccountId\": \"{{account_id_3}}\",\n      \"amount\": 250.75,\n      \"description\": \"Bulk payment 2\",\n      \"reference\": \"REF002\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/bulk-transactions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bulk-transactions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Bulk Transaction Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/bulk-transactions/{{batch_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bulk-transactions",
+                "{{batch_id}}",
+                "status"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Bulk Transaction History",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/bulk-transactions/history?page=1&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bulk-transactions",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audit",
+      "item": [
+        {
+          "name": "Get Audit Logs",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/audit/logs?page=1&limit=50",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "audit",
+                "logs"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "key": "action",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "resource",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "severity",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "startDate",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "endDate",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Audit Logs - Filtered",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/audit/logs?action=CREATE&resource=ACCOUNT&severity=MEDIUM&page=1&limit=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "audit",
+                "logs"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "CREATE"
+                },
+                {
+                  "key": "resource",
+                  "value": "ACCOUNT"
+                },
+                {
+                  "key": "severity",
+                  "value": "MEDIUM"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Export Audit Logs (CSV)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/audit/export?format=csv",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "audit",
+                "export"
+              ],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "csv"
+                },
+                {
+                  "key": "startDate",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "endDate",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Export Audit Logs (XLSX)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/audit/export?format=xlsx",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "audit",
+                "export"
+              ],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "xlsx"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Audit Statistics",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/audit/statistics?days=30",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "audit",
+                "statistics"
+              ],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "30"
+                }
+              ]
             }
           }
         }
