@@ -202,7 +202,7 @@ router.post(
  *       401:
  *         description: Unauthorized
  */
-router.get("/my-accounts", accountController.getUserAccounts);
+router.get("/", accountController.getUserAccounts);
 
 /**
  * @swagger
@@ -449,7 +449,7 @@ router.delete(
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-// Public account lookup (limited info)
+// Public account lookup (limited info) for testing
 router.get("/lookup/:accountNumber", accountController.getAccountByNumber);
 
 // Admin routes

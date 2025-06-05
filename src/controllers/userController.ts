@@ -6,13 +6,16 @@ import logger from '../utils/logger';
 
 export class UserController {
   private userService = new UserService();
-
   register = async (req: Request, res: Response) => {
     try {
       const user = await this.userService.createUser(req.body);
       res.status(201).json(successResponse('User registered successfully', user));
     } catch (error: any) {
       logger.error('Registration error:', error);
+      if (error.message && error.message.includes('email')) {
+        res.status(409).json(errorResponse('Email already exists', 'A user with this email address is already registered'));
+        return;
+      }
       res.status(400).json(errorResponse('Registration failed', error.message));
     }
   };
