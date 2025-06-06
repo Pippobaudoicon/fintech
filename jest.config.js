@@ -7,13 +7,12 @@ module.exports = {
   transform: {
     '^.+\\.ts$': 'ts-jest',
   },
-  collectCoverageFrom: [
-    'src/**/*.ts',
-    '!src/**/*.d.ts',
-    '!src/server.ts',
-  ],
+  collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts', '!src/server.ts'],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
-  testTimeout: 10000,
+  testTimeout: 30000, // Increased timeout for Redis operations
+  maxWorkers: 1, // Run tests serially to avoid Redis conflicts
+  forceExit: true, // Force exit after tests complete
+  detectOpenHandles: true, // Help detect memory leaks
 };

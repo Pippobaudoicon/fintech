@@ -8,3 +8,4 @@ dist
 *.log
 .git
 migration_lock.toml
+coverage
