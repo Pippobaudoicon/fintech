@@ -19,10 +19,16 @@ export class UserController {
       res.status(400).json(errorResponse('Registration failed', error.message));
     }
   };
-
   login = async (req: Request, res: Response) => {
     try {
-      const result = await this.userService.authenticateUser(req.body);
+      // Extract device information
+      const deviceInfo = {
+        userAgent: req.get('User-Agent'),
+        ipAddress: req.ip,
+        deviceId: req.headers['x-device-id'] as string,
+      };
+
+      const result = await this.userService.authenticateUser(req.body, deviceInfo);
       res.json(successResponse('Login successful', result));
     } catch (error: any) {
       logger.error('Login error:', error);
@@ -40,6 +46,16 @@ export class UserController {
     } catch (error: any) {
       logger.error('Logout error:', error);
       res.status(500).json(errorResponse('Logout failed', error.message));
+    }
+  };
+
+  logoutAll = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const result = await this.userService.logoutAll(req.user!.id);
+      res.json(successResponse('Logged out from all devices', result));
+    } catch (error: any) {
+      logger.error('Logout all error:', error);
+      res.status(500).json(errorResponse('Logout from all devices failed', error.message));
     }
   };
 

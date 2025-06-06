@@ -1,6 +1,7 @@
 import prisma from '../config/database';
-import { hashPassword, comparePassword, generateToken, sanitizeUser } from '../utils/helpers';
+import { hashPassword, comparePassword, sanitizeUser } from '../utils/helpers';
 import { CreateUserRequest, LoginRequest } from '../types';
+import { sessionService, DeviceInfo } from './sessionService';
 import { UserRole } from '@prisma/client';
 
 export class UserService {
@@ -17,8 +18,7 @@ export class UserService {
 
     return sanitizeUser(user);
   }
-
-  async authenticateUser(credentials: LoginRequest) {
+  async authenticateUser(credentials: LoginRequest, deviceInfo?: DeviceInfo) {
     const user = await prisma.user.findUnique({
       where: { email: credentials.email },
     });
@@ -30,31 +30,16 @@ export class UserService {
     const isValidPassword = await comparePassword(credentials.password, user.password);
     if (!isValidPassword) {
       throw new Error('Invalid credentials');
-    }    // Add some randomness to make token unique in tests where we quickly create multiple sessions
-    const randomSuffix = Date.now().toString(36) + Math.random().toString(36).substring(2);
-    const token = generateToken({
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-      nonce: randomSuffix // Add randomness to prevent token collisions
-    });
-
-    try {
-      // Create session
-      await prisma.session.create({
-        data: {
-          userId: user.id,
-          token,
-          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-        },
-      });
-    } catch (error) {
-      console.log("Session creation warning:", error);
     }
+
+    // Create session using session service
+    const session = await sessionService.createSession(user.id, user.email, deviceInfo);
 
     return {
       user: sanitizeUser(user),
-      token,
+      token: session.token,
+      sessionId: session.sessionId,
+      expiresAt: session.expiresAt,
     };
   }
 
@@ -135,11 +120,17 @@ export class UserService {
 
     return sanitizeUser(user);
   }
-
   async logout(token: string) {
-    await prisma.session.deleteMany({
-      where: { token },
-    });
+    await sessionService.blacklistToken(token);
+  }
+
+  async logoutAll(userId: string) {
+    const terminatedCount = await sessionService.terminateAllUserSessions(userId);
+    return { sessionsTerminated: terminatedCount };
+  }
+
+  async getUserSessions(userId: string) {
+    return await sessionService.getUserSessions(userId);
   }
 
   async getUserNotifications(userId: string, page: number, limit: number, skip: number) {

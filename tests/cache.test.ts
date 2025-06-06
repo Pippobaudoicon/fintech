@@ -2,7 +2,7 @@ import request from 'supertest';
 import { app } from '../src/app';
 import prisma from '../src/config/database';
 import redisClient from '../src/config/redis';
-import { CacheService } from '../src/services/cacheService';
+import CacheService from '../src/services/cacheService';
 
 describe('Caching', () => {
     let authToken: string;

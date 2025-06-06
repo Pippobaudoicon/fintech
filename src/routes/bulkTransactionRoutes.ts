@@ -6,6 +6,8 @@ import {
   validatePagination,
 } from "../controllers/bulkTransactionController";
 import { authenticate } from "../middleware/auth";
+import { createBulkOperationRateLimit } from "../middleware/rateLimit";
+import { transactionCacheInvalidation } from "../middleware/cache";
 
 const router = Router();
 
@@ -141,8 +143,10 @@ const router = Router();
 router.post(
   "/",
   authenticate,
+  createBulkOperationRateLimit(),
   validateCreateBulkTransaction,
-  bulkTransactionController.createBulkTransaction
+  bulkTransactionController.createBulkTransaction,
+  transactionCacheInvalidation
 );
 
 /**

@@ -2,6 +2,11 @@ import { Router } from "express";
 import { UserController } from "../controllers/userController";
 import { authenticate, authorize } from "../middleware/auth";
 import { validate, createRateLimit } from "../middleware";
+import { createAuthRateLimit, createGeneralRateLimit } from "../middleware/rateLimit";
+import {
+  profileCacheMiddleware,
+  profileCacheInvalidation
+} from "../middleware/cache";
 import {
   registerValidation,
   loginValidation,
@@ -249,7 +254,7 @@ router.post(
  */
 router.post(
   "/login",
-  createRateLimit(60 * 1000, 1000),
+  createAuthRateLimit(),
   loginValidation,
   validate,
   userController.login
@@ -257,6 +262,7 @@ router.post(
 
 // Protected routes
 router.use(authenticate);
+router.use(createGeneralRateLimit());
 
 /**
  * @swagger
@@ -277,6 +283,36 @@ router.use(authenticate);
  *         description: Unauthorized - Invalid token
  */
 router.post("/logout", userController.logout);
+
+/**
+ * @swagger
+ * /api/v1/users/logout-all:
+ *   post:
+ *     summary: Logout from all devices
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Logged out from all devices successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     sessionsTerminated:
+ *                       type: number
+ *       401:
+ *         description: Unauthorized - Invalid token
+ */
+router.post("/logout-all", authenticate, userController.logoutAll);
 
 /**
  * @swagger
@@ -301,7 +337,7 @@ router.post("/logout", userController.logout);
  *       401:
  *         description: Unauthorized
  */
-router.get("/profile", userController.getProfile);
+router.get("/profile", profileCacheMiddleware, userController.getProfile);
 
 /**
  * @swagger
@@ -349,7 +385,7 @@ router.get("/profile", userController.getProfile);
  *       401:
  *         description: Unauthorized
  */
-router.put("/profile", userController.updateProfile);
+router.put("/profile", userController.updateProfile, profileCacheInvalidation);
 
 /**
  * @swagger

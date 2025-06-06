@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyToken, errorResponse } from '../utils/helpers';
+import { errorResponse } from '../utils/helpers';
 import { AuthenticatedRequest } from '../types';
+import { sessionService } from '../services/sessionService';
 import prisma from '../config/database';
 import logger from '../utils/logger';
 
@@ -18,10 +19,18 @@ export const authenticate = async (
     }
 
     const token = authHeader.substring(7);
-    const decoded = verifyToken(token);
 
+    // Validate session using session service
+    const sessionData = await sessionService.validateSession(token);
+
+    if (!sessionData) {
+      res.status(401).json(errorResponse('Invalid or expired token'));
+      return;
+    }
+
+    // Get user details
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
+      where: { id: sessionData.userId },
       select: {
         id: true,
         email: true,
@@ -35,7 +44,9 @@ export const authenticate = async (
       return;
     }
 
+    // Attach user and session info to request
     req.user = user;
+    req.session = sessionData;
     next();
   } catch (error) {
     logger.error('Authentication error:', error);

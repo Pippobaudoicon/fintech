@@ -2,6 +2,11 @@ import { Router } from "express";
 import { TransactionController } from "../controllers/transactionController";
 import { authenticate, authorize, auditLog } from "../middleware/auth";
 import { validate } from "../middleware";
+import { createTransactionRateLimit } from "../middleware/rateLimit";
+import {
+  transactionCacheMiddleware,
+  transactionCacheInvalidation
+} from "../middleware/cache";
 import {
   transactionValidation,
   transferValidation,
@@ -271,10 +276,13 @@ router.use(authenticate);
  */
 router.post(
   "/",
+  authenticate,
+  createTransactionRateLimit(),
   transactionValidation,
   validate,
   auditLog("CREATE", "TRANSACTION"),
-  transactionController.createTransaction
+  transactionController.createTransaction,
+  transactionCacheInvalidation
 );
 
 /**
@@ -479,8 +487,10 @@ router.post(
  */
 router.get(
   "/",
+  authenticate,
   paginationValidation,
   validate,
+  transactionCacheMiddleware,
   transactionController.getTransactions
 );
 

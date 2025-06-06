@@ -2,6 +2,11 @@ import { Router } from "express";
 import { AccountController } from "../controllers/accountController";
 import { authenticate, authorize, auditLog } from "../middleware/auth";
 import { validate } from "../middleware";
+import { createGeneralRateLimit } from "../middleware/rateLimit";
+import {
+  accountSummaryCacheMiddleware,
+  accountCacheInvalidation
+} from "../middleware/cache";
 import {
   createAccountValidation,
   paginationValidation,
@@ -129,6 +134,7 @@ const accountController = new AccountController();
 
 // All routes require authentication
 router.use(authenticate);
+router.use(createGeneralRateLimit());
 
 /**
  * @swagger
@@ -174,7 +180,8 @@ router.post(
   createAccountValidation,
   validate,
   auditLog("CREATE", "ACCOUNT"),
-  accountController.createAccount
+  accountController.createAccount,
+  accountCacheInvalidation
 );
 
 /**
@@ -229,7 +236,7 @@ router.get("/", accountController.getUserAccounts);
  *       500:
  *         description: Internal server error
  */
-router.get("/summary", accountController.getAccountSummary);
+router.get("/summary", accountSummaryCacheMiddleware, accountController.getAccountSummary);
 
 /**
  * @swagger
@@ -413,7 +420,8 @@ router.delete(
   idValidation,
   validate,
   auditLog("DEACTIVATE", "ACCOUNT"),
-  accountController.deactivateAccount
+  accountController.deactivateAccount,
+  accountCacheInvalidation
 );
 
 /**

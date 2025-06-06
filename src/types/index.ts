@@ -1,12 +1,23 @@
 import { Request } from 'express';
 import { UserRole, AccountType, TransactionType, TransactionStatus, KYCStatus } from '@prisma/client';
 
+export interface SessionData {
+  userId: string;
+  email: string;
+  sessionId: string;
+  deviceId?: string;
+  userAgent?: string;
+  ipAddress?: string;
+  createdAt: Date;
+}
+
 export interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
     email: string;
     role: UserRole;
   };
+  session?: SessionData;
 }
 
 export interface CreateUserRequest {

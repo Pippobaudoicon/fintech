@@ -183,6 +183,9 @@ model Session {
   id        String   @id @default(cuid())
   token     String   @unique
   expiresAt DateTime
+  deviceId  String?
+  userAgent String?
+  ipAddress String?
   createdAt DateTime @default(now())
 
   // Relations

@@ -6,8 +6,12 @@ import {
   validateAuditStatistics,
 } from "../controllers/auditController";
 import { authenticate } from "../middleware/auth";
+import { createGeneralRateLimit } from "../middleware/rateLimit";
 
 const router = Router();
+
+// Apply general rate limiting to all audit routes
+router.use(createGeneralRateLimit());
 
 /**
  * @swagger
