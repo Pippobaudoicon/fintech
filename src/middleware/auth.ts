@@ -19,7 +19,7 @@ export const authenticate = async (
     }
 
     const token = authHeader.substring(7);
-
+    
     // Validate session using session service
     const sessionData = await sessionService.validateSession(token);
 

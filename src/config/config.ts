@@ -35,7 +35,7 @@ const config: Config = {
   databaseUrl: process.env.DATABASE_URL || '',
   jwtSecret: process.env.JWT_SECRET || 'fallback-secret',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
-  bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS || '12', 10), rateLimit: {
+  bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS || '12', 10),  rateLimit: {
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000', 10), // 1 minute window for testing
     maxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '10000', 10), // 10,000 requests per minute for testing
   },

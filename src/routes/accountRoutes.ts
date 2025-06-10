@@ -3,9 +3,9 @@ import { AccountController } from "../controllers/accountController";
 import { authenticate, authorize, auditLog } from "../middleware/auth";
 import { validate } from "../middleware";
 import { createGeneralRateLimit } from "../middleware/rateLimit";
-import {
-  accountSummaryCacheMiddleware,
-  accountCacheInvalidation
+import { 
+  accountSummaryCacheMiddleware, 
+  accountCacheInvalidation 
 } from "../middleware/cache";
 import {
   createAccountValidation,

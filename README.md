@@ -105,11 +105,13 @@ npm run db:generate
 ### 5. Start the Application
 
 #### Development Mode
+
 ```bash
 npm run dev
 ```
 
 #### Production Mode
+
 ```bash
 npm run build
 npm start
@@ -205,22 +207,26 @@ Authorization: Bearer <your-jwt-token>
 ## 💰 Core API Endpoints
 
 ### Authentication
+
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - User login
 - `POST /api/auth/logout` - User logout
 
 ### Users
+
 - `GET /api/users/profile` - Get user profile
 - `PUT /api/users/profile` - Update user profile
 - `GET /api/users` - List users (Admin only)
 
 ### Accounts
+
 - `GET /api/accounts` - Get user accounts
 - `POST /api/accounts` - Create new account
 - `GET /api/accounts/:id` - Get account details
 - `GET /api/accounts/:id/transactions` - Get account transactions
 
 ### Transactions
+
 - `POST /api/transactions/transfer` - Transfer money between accounts
 - `POST /api/transactions/deposit` - Deposit money
 - `POST /api/transactions/withdraw` - Withdraw money
@@ -254,6 +260,7 @@ Authorization: Bearer <your-jwt-token>
 ### Code Style
 
 The project uses TypeScript strict mode and follows these conventions:
+
 - ESLint for code linting
 - Prettier for code formatting
 - Husky for pre-commit hooks (optional)
@@ -280,16 +287,11 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 🆘 Support
 
 For support and questions:
+
 - Check the API documentation at `/api-docs`
 - Review the test files for usage examples
 - Create an issue in the repository
 
 ## 🎯 Next Steps
 
-- Implement payment gateway integration (Stripe, PayPal)
-- Add financial analytics and reporting
-- Implement KYC (Know Your Customer) verification
-- Add support for multiple currencies
-- Implement automated compliance checks
-- Add GraphQL API alongside REST
-- Implement event sourcing for audit compliance
+- Implement Redis caching system and test units

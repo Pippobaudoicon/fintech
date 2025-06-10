@@ -3,9 +3,9 @@ import { UserController } from "../controllers/userController";
 import { authenticate, authorize } from "../middleware/auth";
 import { validate, createRateLimit } from "../middleware";
 import { createAuthRateLimit, createGeneralRateLimit } from "../middleware/rateLimit";
-import {
-  profileCacheMiddleware,
-  profileCacheInvalidation
+import { 
+  profileCacheMiddleware, 
+  profileCacheInvalidation 
 } from "../middleware/cache";
 import {
   registerValidation,
