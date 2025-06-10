@@ -2,6 +2,7 @@ import express from "express";
 import { createServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import config from "./config/config";
+import { connectRedis } from "./config/redis";
 import { swaggerSpec, swaggerUi, swaggerUiOptions } from "./config/swagger";
 import {
   securityMiddleware,
@@ -9,6 +10,7 @@ import {
   errorHandler,
   notFound,
   createRateLimit,
+  createRedisRateLimit,
 } from "./middleware";
 import routes from "./routes";
 import logger from "./utils/logger";
@@ -36,8 +38,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
 app.use(securityMiddleware);
 
-// Global rate limiting
-app.use(createRateLimit());
+// Global rate limiting with Redis
+app.use(createRedisRateLimit({
+  windowMs: config.rateLimit.windowMs,
+  maxRequests: config.rateLimit.maxRequests,
+  message: 'Too many requests from this IP, please try again later',
+}));
 
 // API Documentation
 app.use(
@@ -86,6 +92,12 @@ const gracefulShutdown = async () => {
     try {
       await prisma.$disconnect();
       logger.info("Database connection closed");
+      
+      // Disconnect Redis
+      const { disconnectRedis } = await import("./config/redis");
+      await disconnectRedis();
+      logger.info("Redis connection closed");
+      
       process.exit(0);
     } catch (error) {
       logger.error("Error during graceful shutdown:", error);

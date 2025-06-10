@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { UserController } from "../controllers/userController";
 import { authenticate, authorize } from "../middleware/auth";
-import { validate, createRateLimit } from "../middleware";
+import { validate, createAuthRateLimit } from "../middleware";
 import {
   registerValidation,
   loginValidation,
@@ -206,10 +206,14 @@ const userController = new UserController();
  *       429:
  *         description: Too many requests
  */
-// Public routes - Temporarily increased rate limits for testing
+// Public routes - Redis-based rate limiting for authentication
 router.post(
   "/register",
-  createRateLimit(60 * 1000, 1000),
+  createAuthRateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    maxRequests: 5, // 5 registration attempts per 15 minutes
+    message: 'Too many registration attempts, please try again later'
+  }),
   registerValidation,
   validate,
   userController.register
@@ -249,7 +253,11 @@ router.post(
  */
 router.post(
   "/login",
-  createRateLimit(60 * 1000, 1000),
+  createAuthRateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    maxRequests: 5, // 5 login attempts per 15 minutes
+    message: 'Too many login attempts, please try again later'
+  }),
   loginValidation,
   validate,
   userController.login

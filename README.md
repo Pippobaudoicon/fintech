@@ -137,7 +137,25 @@ npm run test:watch
 
 # Run tests with coverage
 npm run test:coverage
+
+### Rate Limiting Tests
+
+The project includes comprehensive rate limiting tests:
+
+- **Unit Tests**: Mock-based tests for rate limiting logic
+- **Integration Tests**: Real Redis integration tests
+- **Manual Testing**: End-to-end rate limiting verification
+
+```bash
+# Test rate limiting manually (requires server to be running)
+node scripts/test-rate-limiting.js
 ```
+
+The manual test script will:
+- Test global API rate limiting
+- Test authentication rate limiting (login/register)
+- Test financial operation rate limiting (transactions, transfers, payments)
+- Display rate limit headers and responses
 
 ## 🐳 Docker Deployment
 
@@ -230,11 +248,26 @@ Authorization: Bearer <your-jwt-token>
 
 - **Input Validation**: Comprehensive validation using Joi schemas
 - **SQL Injection Protection**: Prisma ORM with prepared statements
-- **Rate Limiting**: Configurable limits on financial operations
+- **Rate Limiting**: Redis-based rate limiting with different limits for different operations
+  - Authentication: 5 attempts per 15 minutes per email/IP
+  - Financial Operations: 3-10 requests per minute per user based on operation type
+  - Global API: 100 requests per minute per IP
 - **CORS Protection**: Cross-origin request security
 - **Helmet**: Security headers middleware
 - **Audit Logging**: All financial operations are logged
 - **Password Hashing**: bcrypt for secure password storage
+
+### Rate Limiting Details
+
+The API implements sophisticated Redis-based rate limiting:
+
+- **Progressive Limits**: Stricter limits for sensitive operations (payments < transfers < transactions)
+- **Multiple Strategies**: Email-based for auth, user-based for financial ops, IP-based for general API
+- **Graceful Degradation**: Fails open if Redis is unavailable
+- **Rate Limit Headers**: All responses include limit status headers
+- **Admin Controls**: Rate limits can be reset for troubleshooting
+
+For detailed rate limiting documentation, see [RATE_LIMITING.md](./RATE_LIMITING.md)
 
 ## 🏗 Development
 

@@ -8,6 +8,19 @@ import config from '../config/config';
 import logger from '../utils/logger';
 import { errorResponse } from '../utils/helpers';
 
+// Export Redis rate limiters
+export {
+  createRedisRateLimit,
+  createUserRateLimit,
+  createEndpointRateLimit,
+  createFinancialRateLimit,
+  createAuthRateLimit,
+  getRateLimitStatus,
+  resetRateLimit,
+  RateLimitOptions,
+  RateLimitInfo,
+} from './rateLimiter';
+
 // Rate limiting middleware
 export const createRateLimit = (windowMs?: number, max?: number) => {
   return rateLimit({

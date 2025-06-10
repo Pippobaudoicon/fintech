@@ -6,6 +6,7 @@ import {
   validatePagination,
 } from "../controllers/bulkTransactionController";
 import { authenticate } from "../middleware/auth";
+import { createFinancialRateLimit } from "../middleware";
 
 const router = Router();
 
@@ -141,6 +142,11 @@ const router = Router();
 router.post(
   "/",
   authenticate,
+  createFinancialRateLimit({
+    windowMs: 5 * 60 * 1000, // 5 minutes
+    maxRequests: 2, // 2 bulk operations per 5 minutes
+    message: 'Too many bulk transaction attempts, please try again later'
+  }),
   validateCreateBulkTransaction,
   bulkTransactionController.createBulkTransaction
 );

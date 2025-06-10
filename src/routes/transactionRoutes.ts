@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { TransactionController } from "../controllers/transactionController";
 import { authenticate, authorize, auditLog } from "../middleware/auth";
-import { validate } from "../middleware";
+import { validate, createFinancialRateLimit } from "../middleware";
 import {
   transactionValidation,
   transferValidation,
@@ -271,6 +271,11 @@ router.use(authenticate);
  */
 router.post(
   "/",
+  createFinancialRateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 10, // 10 transactions per minute
+    message: 'Too many transaction attempts, please try again later'
+  }),
   transactionValidation,
   validate,
   auditLog("CREATE", "TRANSACTION"),
@@ -320,6 +325,11 @@ router.post(
  */
 router.post(
   "/transfer",
+  createFinancialRateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 5, // 5 transfers per minute
+    message: 'Too many transfer attempts, please try again later'
+  }),
   transferValidation,
   validate,
   auditLog("TRANSFER", "TRANSACTION"),
@@ -372,6 +382,11 @@ router.post(
  */
 router.post(
   "/payment",
+  createFinancialRateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 3, // 3 payments per minute
+    message: 'Too many payment attempts, please try again later'
+  }),
   paymentValidation,
   validate,
   auditLog("PAYMENT", "TRANSACTION"),
