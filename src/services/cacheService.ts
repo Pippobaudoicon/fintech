@@ -56,7 +56,7 @@ export class CacheService {
       const serializedValue = JSON.stringify(value);
 
       await redisClient.set(cacheKey, serializedValue, 'EX', ttl);
-      
+
       logger.debug(`Cache set for key: ${cacheKey}, TTL: ${ttl}s`);
       return true;
     } catch (error) {
@@ -72,7 +72,7 @@ export class CacheService {
     try {
       const cacheKey = this.buildKey(key, options?.prefix);
       const result = await redisClient.del(cacheKey);
-      
+
       logger.debug(`Cache delete for key: ${cacheKey}`);
       return result > 0;
     } catch (error) {
@@ -131,7 +131,7 @@ export class CacheService {
     try {
       const cachePattern = this.buildKey(pattern, options?.prefix);
       const keys = await redisClient.keys(cachePattern);
-      
+
       if (keys.length === 0) {
         return 0;
       }
@@ -156,13 +156,13 @@ export class CacheService {
     try {
       const cacheKey = this.buildKey(key, options?.prefix);
       const result = await redisClient.incr(cacheKey);
-      
+
       // Set TTL if it's a new key
       if (result === 1) {
         const ttl = options?.ttl || this.DEFAULT_TTL;
         await redisClient.expire(cacheKey, ttl);
       }
-      
+
       return result;
     } catch (error) {
       logger.error('Cache increment error:', error);
@@ -216,7 +216,7 @@ export class CacheService {
    */
   static transactionKey(userId: string, filters?: Record<string, any>): string {
     let key = `transactions:${userId}`;
-    
+
     if (filters && Object.keys(filters).length > 0) {
       const filterStr = Object.entries(filters)
         .sort(([a], [b]) => a.localeCompare(b))
@@ -224,7 +224,7 @@ export class CacheService {
         .join('|');
       key += `:${filterStr}`;
     }
-    
+
     return key;
   }
 

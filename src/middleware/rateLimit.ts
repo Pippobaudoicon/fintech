@@ -30,7 +30,7 @@ export class SlidingWindowRateLimit {
       keyGenerator: (req: Request) => this.getClientIdentifier(req),
       skipSuccessfulRequests: false,
       skipFailedRequests: false,
-      onLimitReached: () => {},
+      onLimitReached: () => { },
       ...options,
     };
   }
@@ -57,7 +57,7 @@ export class SlidingWindowRateLimit {
         // Check if limit exceeded
         if (currentCount >= this.options.maxRequests) {
           const oldestRequest = await redisClient.zrange(redisKey, 0, 0, 'WITHSCORES');
-          const resetTime = oldestRequest.length > 0 
+          const resetTime = oldestRequest.length > 0
             ? new Date(parseInt(oldestRequest[1]) + this.options.windowMs)
             : new Date(now + this.options.windowMs);
 
@@ -150,9 +150,9 @@ export class SlidingWindowRateLimit {
     const originalSend = res.send;
     const rateLimitInfo = (req as any).rateLimitInfo;
 
-    res.send = function(body) {
+    res.send = function (body) {
       const statusCode = res.statusCode;
-      
+
       // Determine if we should clean up based on response
       if (
         (statusCode >= 400 && !rateLimitInfo.options?.skipFailedRequests) ||

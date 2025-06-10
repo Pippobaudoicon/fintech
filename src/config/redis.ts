@@ -13,12 +13,12 @@ class MockRedis {
   async get(key: string): Promise<string | null> {
     const item = this.store.get(key);
     if (!item) return null;
-    
+
     if (item.expiry && Date.now() > item.expiry) {
       this.store.delete(key);
       return null;
     }
-    
+
     return item.value;
   }
 
@@ -43,7 +43,7 @@ class MockRedis {
       }
       return 1;
     }
-    
+
     return this.sets.has(key) ? 1 : 0;
   }
 
@@ -73,7 +73,7 @@ class MockRedis {
       item.expiry = Date.now() + (seconds * 1000);
       return 1;
     }
-    
+
     if (this.sets.has(key)) {
       // For sets, we'll simulate expiry by setting a timeout
       setTimeout(() => {
@@ -81,7 +81,7 @@ class MockRedis {
       }, seconds * 1000);
       return 1;
     }
-    
+
     return 0;
   }
 
@@ -104,18 +104,18 @@ class MockRedis {
   async srem(key: string, ...members: string[]): Promise<number> {
     const set = this.sets.get(key);
     if (!set) return 0;
-    
+
     let removed = 0;
     for (const member of members) {
       if (set.delete(member)) {
         removed++;
       }
     }
-    
+
     if (set.size === 0) {
       this.sets.delete(key);
     }
-    
+
     return removed;
   }
   async smembers(key: string): Promise<string[]> {
@@ -128,20 +128,20 @@ class MockRedis {
     if (!this.store.has(key)) {
       this.store.set(key, { value: JSON.stringify([]), expiry: undefined });
     }
-    
+
     const item = this.store.get(key)!;
     const sortedSet = JSON.parse(item.value) as Array<{ score: number; member: string }>;
-    
+
     // Remove existing member if present
     const existingIndex = sortedSet.findIndex(item => item.member === member);
     if (existingIndex >= 0) {
       sortedSet.splice(existingIndex, 1);
     }
-    
+
     // Add new member
     sortedSet.push({ score: parseFloat(score), member });
     sortedSet.sort((a, b) => a.score - b.score);
-    
+
     item.value = JSON.stringify(sortedSet);
     return existingIndex >= 0 ? 0 : 1; // Return 0 if updated, 1 if added
   }
@@ -149,25 +149,25 @@ class MockRedis {
   async zremrangebyscore(key: string, min: number, max: number): Promise<number> {
     const item = this.store.get(key);
     if (!item) return 0;
-    
+
     const sortedSet = JSON.parse(item.value) as Array<{ score: number; member: string }>;
     const initialLength = sortedSet.length;
-    
+
     const filtered = sortedSet.filter(item => item.score < min || item.score > max);
-    
+
     if (filtered.length === 0) {
       this.store.delete(key);
     } else {
       item.value = JSON.stringify(filtered);
     }
-    
+
     return initialLength - filtered.length;
   }
 
   async zcard(key: string): Promise<number> {
     const item = this.store.get(key);
     if (!item) return 0;
-    
+
     const sortedSet = JSON.parse(item.value) as Array<{ score: number; member: string }>;
     return sortedSet.length;
   }
@@ -175,10 +175,10 @@ class MockRedis {
   async zrange(key: string, start: number, stop: number, withScores?: string): Promise<string[]> {
     const item = this.store.get(key);
     if (!item) return [];
-    
+
     const sortedSet = JSON.parse(item.value) as Array<{ score: number; member: string }>;
     const slice = sortedSet.slice(start, stop + 1);
-    
+
     if (withScores === 'WITHSCORES') {
       const result: string[] = [];
       for (const item of slice) {
@@ -186,17 +186,17 @@ class MockRedis {
       }
       return result;
     }
-    
+
     return slice.map(item => item.member);
   }
 
   async zrem(key: string, member: string): Promise<number> {
     const item = this.store.get(key);
     if (!item) return 0;
-    
+
     const sortedSet = JSON.parse(item.value) as Array<{ score: number; member: string }>;
     const index = sortedSet.findIndex(item => item.member === member);
-    
+
     if (index >= 0) {
       sortedSet.splice(index, 1);
       if (sortedSet.length === 0) {
@@ -206,7 +206,7 @@ class MockRedis {
       }
       return 1;
     }
-    
+
     return 0;
   }
 
@@ -222,7 +222,8 @@ const initializeRedis = (): Redis | MockRedis => {
     return new MockRedis() as any;
   }
 
-  try {    const client = new Redis({
+  try {
+    const client = new Redis({
       host: config.redis.host,
       port: config.redis.port,
       password: config.redis.password,

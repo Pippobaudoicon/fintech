@@ -25,13 +25,13 @@ export const createCacheMiddleware = (options: CacheMiddlewareOptions = {}) => {
       }
 
       // Generate cache key
-      const cacheKey = options.keyGenerator 
+      const cacheKey = options.keyGenerator
         ? options.keyGenerator(req)
         : generateDefaultCacheKey(req);
 
       // Try to get cached response
       const cachedResponse = await cacheService.get(cacheKey, options);
-      
+
       if (cachedResponse) {
         logger.debug(`Cache hit for key: ${cacheKey}`);
         res.set('X-Cache', 'HIT');
@@ -45,7 +45,7 @@ export const createCacheMiddleware = (options: CacheMiddlewareOptions = {}) => {
 
       // Override res.json to cache the response
       const originalJson = res.json;
-      res.json = function(data: any) {
+      res.json = function (data: any) {
         // Only cache successful responses
         if (res.statusCode >= 200 && res.statusCode < 300) {
           cacheService.set(cacheKey, data, options).catch(error => {
@@ -72,8 +72,8 @@ export const createCacheInvalidationMiddleware = (patterns: string[]) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     // Store original res.end to trigger invalidation after response
     const originalEnd = res.end;
-    
-    res.end = function(this: Response, ...args: any[]): any {
+
+    res.end = function (this: Response, ...args: any[]): any {
       // Only invalidate on successful responses
       if (res.statusCode >= 200 && res.statusCode < 300) {
         // Run invalidation async to not block response
@@ -104,7 +104,7 @@ function generateDefaultCacheKey(req: Request): string {
   const path = req.path;
   const query = JSON.stringify(req.query);
   const queryHash = require('crypto').createHash('md5').update(query).digest('hex');
-  
+
   return `${userId}:${path}:${queryHash}`;
 }
 
