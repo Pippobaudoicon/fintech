@@ -39,9 +39,10 @@ export class UserService {
       nonce: randomSuffix // Add randomness to prevent token collisions
     });
 
+    let session;
     try {
       // Create session
-      await prisma.session.create({
+      session = await prisma.session.create({
         data: {
           userId: user.id,
           token,
@@ -55,6 +56,8 @@ export class UserService {
     return {
       user: sanitizeUser(user),
       token,
+      sessionId: session?.id,
+      expiresAt: session?.expiresAt,
     };
   }
 

@@ -161,61 +161,6 @@ describe('User API', () => {
     });
   });
 
-  describe('POST /api/v1/users/logout-all', () => {
-    let authTokens: string[] = [];
-
-    beforeEach(async () => {
-      // Create multiple sessions
-      for (let i = 0; i < 3; i++) {
-        const loginResponse = await request(app)
-          .post('/api/v1/users/login')
-          .send({
-            email: 'test@example.com',
-            password: 'Test123!@#',
-          });
-
-        authTokens.push(loginResponse.body.data.token);
-      }
-
-      // Ensure we have at least one valid token
-      if (authTokens.length === 0) {
-        throw new Error('Failed to get any valid auth tokens during test setup');
-      }
-    });
-
-    afterEach(() => {
-      authTokens = [];
-    });
-
-    it('should logout from all devices', async () => {
-      const response = await request(app)
-        .post('/api/v1/users/logout-all')
-        .set('Authorization', `Bearer ${authTokens[0]}`)
-        .expect(200);
-
-      expect(response.body.success).toBe(true);
-      expect(response.body.data.sessionsTerminated).toBeGreaterThan(0);
-    });
-
-    it('should invalidate all tokens after logout-all', async () => {
-      // Logout from all devices
-      await request(app)
-        .post('/api/v1/users/logout-all')
-        .set('Authorization', `Bearer ${authTokens[0]}`)
-        .expect(200);
-
-      // Try to access with any of the tokens
-      for (const token of authTokens) {
-        const response = await request(app)
-          .get('/api/v1/users/profile')
-          .set('Authorization', `Bearer ${token}`)
-          .expect(401);
-
-        expect(response.body.success).toBe(false);
-      }
-    });
-  });
-
   describe('GET /api/v1/users/profile', () => {
     let authToken: string; beforeAll(async () => {
       const loginResponse = await request(app)

@@ -20,6 +20,16 @@ export const authenticate = async (
     const token = authHeader.substring(7);
     const decoded = verifyToken(token);
 
+    // Check if session exists and is not expired
+    const session = await prisma.session.findUnique({
+      where: { token },
+    });
+
+    if (!session || session.expiresAt < new Date()) {
+      res.status(401).json(errorResponse('Invalid or expired session'));
+      return;
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       select: {
