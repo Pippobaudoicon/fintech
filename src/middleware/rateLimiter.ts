@@ -47,7 +47,7 @@ export const createRedisRateLimit = (options: RateLimitOptions) => {
     try {
       const key = keyGenerator(req);
       const windowInSeconds = Math.ceil(windowMs / 1000);
-      
+
       // Check if Redis is connected
       if (!redisClient.isReady) {
         logger.warn('Redis not connected, skipping rate limiting');
@@ -60,18 +60,18 @@ export const createRedisRateLimit = (options: RateLimitOptions) => {
       multi.incr(key);
       multi.expire(key, windowInSeconds);
       multi.ttl(key);
-      
+
       const results = await multi.exec();
-      
+
       if (!results) {
         logger.error('Redis multi operation failed');
         next();
         return;
       }
 
-      const currentCount = Number(results[0]) || 0;
-      const ttl = Number(results[2]) || 0;
-      
+      const currentCount = Number((results[0] as any)?.[1]) || 0;
+      const ttl = Number((results[2] as any)?.[1]) || 0;
+
       // Calculate reset time
       const resetTime = new Date(Date.now() + (ttl * 1000));
       const remaining = Math.max(0, maxRequests - currentCount);
@@ -212,16 +212,16 @@ export const getRateLimitStatus = async (
     const multi = redisClient.multi();
     multi.get(key);
     multi.ttl(key);
-    
+
     const results = await multi.exec();
-    
+
     if (!results) {
       return null;
     }
 
     const currentCount = parseInt(String(results[0]) || '0', 10);
     const ttl = Number(results[1]) || 0;
-    
+
     const resetTime = new Date(Date.now() + (ttl * 1000));
     const remaining = Math.max(0, maxRequests - currentCount);
 
