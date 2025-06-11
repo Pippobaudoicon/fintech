@@ -172,4 +172,42 @@ export class UserService {
       data: { isRead: true },
     });
   }
+
+  // List all active sessions for a user
+  async listSessions(userId: string) {
+    return prisma.session.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        token: true,
+        createdAt: true,
+        expiresAt: true,
+      },
+    });
+  }
+
+  // Revoke a specific session by session ID (logout from a device)
+  async revokeSession(userId: string, sessionId: string) {
+    return prisma.session.deleteMany({
+      where: { id: sessionId, userId },
+    });
+  }
+
+  // Revoke all sessions except the current one (logout everywhere else)
+  async revokeAllOtherSessions(userId: string, currentSessionId: string) {
+    return prisma.session.deleteMany({
+      where: {
+        userId,
+        NOT: { id: currentSessionId },
+      },
+    });
+  }
+
+  // Cleanup expired sessions (to be called periodically)
+  async cleanupExpiredSessions() {
+    return prisma.session.deleteMany({
+      where: { expiresAt: { lt: new Date() } },
+    });
+  }
 }

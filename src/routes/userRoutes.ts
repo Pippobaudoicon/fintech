@@ -464,6 +464,97 @@ router.patch(
   userController.markAllNotificationsAsRead
 );
 
+/**
+ * @swagger
+ * /api/v1/users/sessions:
+ *   get:
+ *     summary: List all active sessions for the current user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of active sessions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             format: cuid
+ *                           token:
+ *                             type: string
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                           expiresAt:
+ *                             type: string
+ *                             format: date-time
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /api/v1/users/sessions/{sessionId}:
+ *   delete:
+ *     summary: Revoke (logout) a specific session by ID
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: sessionId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *         description: Session ID to revoke
+ *     responses:
+ *       200:
+ *         description: Session revoked
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Session not found
+ */
+
+/**
+ * @swagger
+ * /api/v1/users/sessions/revoke-others:
+ *   post:
+ *     summary: Revoke all other sessions except the current one
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All other sessions revoked
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *       401:
+ *         description: Unauthorized
+ */
+
+// Session management routes (must be after router.use(authenticate))
+router.get("/sessions", userController.listSessions);
+router.delete("/sessions/:sessionId", userController.revokeSession);
+router.post("/sessions/revoke-others", (req, res) => userController.revokeAllOtherSessions(req, res));
+
 // Admin routes
 router.use(authorize("ADMIN"));
 

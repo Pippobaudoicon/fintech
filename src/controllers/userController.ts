@@ -139,4 +139,50 @@ export class UserController {
       res.status(400).json(errorResponse('Failed to mark notifications as read', error.message));
     }
   };
+
+  // List all active sessions for the current user
+  listSessions = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const sessions = await this.userService.listSessions(req.user!.id);
+      res.json(successResponse('Active sessions retrieved', sessions));
+    } catch (error: any) {
+      logger.error('List sessions error:', error);
+      res.status(500).json(errorResponse('Failed to list sessions', error.message));
+    }
+  };
+
+  // Revoke a specific session (logout from a device)
+  revokeSession = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { sessionId } = req.params;
+      await this.userService.revokeSession(req.user!.id, sessionId);
+      res.json(successResponse('Session revoked'));
+    } catch (error: any) {
+      logger.error('Revoke session error:', error);
+      res.status(500).json(errorResponse('Failed to revoke session', error.message));
+    }
+  };
+
+  // Revoke all other sessions except the current one
+  revokeAllOtherSessions = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+      const currentToken = req.headers.authorization?.substring(7);
+      if (!currentToken) {
+        res.status(400).json(errorResponse('Current session token required'));
+        return;
+      }
+      // Find current session
+      const sessions = await this.userService.listSessions(req.user!.id);
+      const session = sessions.find(s => s.token === currentToken);
+      if (!session) {
+        res.status(404).json(errorResponse('Current session not found'));
+        return;
+      }
+      await this.userService.revokeAllOtherSessions(req.user!.id, session.id);
+      res.json(successResponse('All other sessions revoked'));
+    } catch (error: any) {
+      logger.error('Revoke all other sessions error:', error);
+      res.status(500).json(errorResponse('Failed to revoke other sessions', error.message));
+    }
+  };
 }

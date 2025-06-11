@@ -191,4 +191,85 @@ describe('User API', () => {
       expect(response.body.success).toBe(false);
     });
   });
+
+  describe('Session Management', () => {
+    let authToken: string;
+    let sessionId: string;
+    let secondToken: string;
+    let secondSessionId: string;
+
+    beforeAll(async () => {
+      // Login to get a session
+      const loginResponse = await request(app)
+        .post('/api/v1/users/login')
+        .send({ email: 'test@example.com', password: 'Test123!@#' });
+      authToken = loginResponse.body.data.token;
+      sessionId = loginResponse.body.data.sessionId;
+
+      // Login again to create a second session (multi-device)
+      const loginResponse2 = await request(app)
+        .post('/api/v1/users/login')
+        .send({ email: 'test@example.com', password: 'Test123!@#' });
+      secondToken = loginResponse2.body.data.token;
+      secondSessionId = loginResponse2.body.data.sessionId;
+    });
+
+    it('should list all active sessions', async () => {
+      const response = await request(app)
+        .get('/api/v1/users/sessions')
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200);
+      expect(response.body.success).toBe(true);
+      expect(Array.isArray(response.body.data)).toBe(true);
+      expect(response.body.data.length).toBeGreaterThanOrEqual(2);
+      expect(response.body.data.some((s: any) => s.id === sessionId)).toBe(true);
+      expect(response.body.data.some((s: any) => s.id === secondSessionId)).toBe(true);
+    });
+
+    it('should revoke (logout) a specific session', async () => {
+      // Revoke the second session from the first session
+      const response = await request(app)
+        .delete(`/api/v1/users/sessions/${secondSessionId}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200);
+      expect(response.body.success).toBe(true);
+
+      // That session should no longer be valid
+      const fail = await request(app)
+        .get('/api/v1/users/profile')
+        .set('Authorization', `Bearer ${secondToken}`)
+        .expect(401);
+      expect(fail.body.success).toBe(false);
+    });
+
+    it('should revoke all other sessions except the current one', async () => {
+      // Login again to create another session
+      const loginResponse3 = await request(app)
+        .post('/api/v1/users/login')
+        .send({ email: 'test@example.com', password: 'Test123!@#' });
+      const thirdToken = loginResponse3.body.data.token;
+      const thirdSessionId = loginResponse3.body.data.sessionId;
+
+      // Revoke all other sessions from the third session
+      const response = await request(app)
+        .post('/api/v1/users/sessions/revoke-others')
+        .set('Authorization', `Bearer ${thirdToken}`)
+        .expect(200);
+      expect(response.body.success).toBe(true);
+
+      // The original session should now be invalid
+      const fail = await request(app)
+        .get('/api/v1/users/profile')
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(401);
+      expect(fail.body.success).toBe(false);
+
+      // The third session should still be valid
+      const ok = await request(app)
+        .get('/api/v1/users/profile')
+        .set('Authorization', `Bearer ${thirdToken}`)
+        .expect(200);
+      expect(ok.body.success).toBe(true);
+    });
+  });
 });
