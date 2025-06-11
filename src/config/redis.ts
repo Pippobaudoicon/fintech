@@ -42,6 +42,10 @@ export const connectRedis = async (): Promise<void> => {
   }
 };
 
+export const isConnected = (): boolean => {
+  return redisClient.isReady;
+};
+
 // Disconnect from Redis
 export const disconnectRedis = async (): Promise<void> => {
   try {
