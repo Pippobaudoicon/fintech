@@ -3,6 +3,7 @@ import { TransactionService } from '../services/transactionService';
 import { AuthenticatedRequest, TransactionFilters, AnalyticsQuery } from '../types';
 import { successResponse, errorResponse, parsePageAndLimit, calculatePagination } from '../utils/helpers';
 import logger from '../utils/logger';
+import { cacheResponse, transactionListCacheKey } from '../middleware/cache';
 
 export class TransactionController {
   private transactionService = new TransactionService();
@@ -35,36 +36,39 @@ export class TransactionController {
       res.status(400).json(errorResponse('Payment failed', error.message));
     }
   };
-  getTransactions = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
-    try {
-      const { page, limit, skip } = parsePageAndLimit(req.query.page as string, req.query.limit as string);
-      const filters: TransactionFilters = {
-        accountId: req.query.accountId as string,
-        type: req.query.type as any,
-        status: req.query.status as any,
-        fromDate: req.query.fromDate as string,
-        toDate: req.query.toDate as string,
-        minAmount: req.query.minAmount as string,
-        maxAmount: req.query.maxAmount as string,
-        sortBy: req.query.sortBy as string,
-        sortOrder: req.query.sortOrder as 'asc' | 'desc',
-      };
+  getTransactions = [
+    cacheResponse(transactionListCacheKey, 60),
+    async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+      try {
+        const { page, limit, skip } = parsePageAndLimit(req.query.page as string, req.query.limit as string);
+        const filters: TransactionFilters = {
+          accountId: req.query.accountId as string,
+          type: req.query.type as any,
+          status: req.query.status as any,
+          fromDate: req.query.fromDate as string,
+          toDate: req.query.toDate as string,
+          minAmount: req.query.minAmount as string,
+          maxAmount: req.query.maxAmount as string,
+          sortBy: req.query.sortBy as string,
+          sortOrder: req.query.sortOrder as 'asc' | 'desc',
+        };
 
-      const { transactions, total } = await this.transactionService.getTransactions(
-        req.user!.id,
-        filters,
-        page,
-        limit,
-        skip
-      );
-      const pagination = calculatePagination(total, page, limit);
+        const { transactions, total } = await this.transactionService.getTransactions(
+          req.user!.id,
+          filters,
+          page,
+          limit,
+          skip
+        );
+        const pagination = calculatePagination(total, page, limit);
 
-      res.json(successResponse('Transactions retrieved successfully', transactions, pagination));
-    } catch (error: any) {
-      logger.error('Get transactions error:', error);
-      res.status(500).json(errorResponse('Failed to retrieve transactions', error.message));
+        res.json(successResponse('Transactions retrieved successfully', transactions, pagination));
+      } catch (error: any) {
+        logger.error('Get transactions error:', error);
+        res.status(500).json(errorResponse('Failed to retrieve transactions', error.message));
+      }
     }
-  };
+  ];
 
   getTransactionById = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {

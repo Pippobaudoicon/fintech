@@ -229,7 +229,7 @@ router.get("/", accountController.getUserAccounts);
  *       500:
  *         description: Internal server error
  */
-router.get("/summary", accountController.getAccountSummary);
+router.get('/summary', accountController.getAccountSummary);
 
 /**
  * @swagger
@@ -369,11 +369,11 @@ router.get(
  *         description: Unauthorized
  */
 router.get(
-  "/:id/transactions",
+  '/:id/transactions',
   idValidation,
   validate,
   paginationValidation,
-  accountController.getAccountTransactions
+  ...accountController.getAccountTransactions
 );
 
 /**

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { TransactionController } from "../controllers/transactionController";
+import { transactionController } from '../controllers/transactionController';
 import { authenticate, authorize, auditLog } from "../middleware/auth";
 import { validate, createFinancialRateLimit } from "../middleware";
 import {
@@ -212,7 +212,6 @@ import {
  */
 
 const router = Router();
-const transactionController = new TransactionController();
 
 // All routes require authentication
 router.use(authenticate);
@@ -493,10 +492,10 @@ router.post(
  *         description: Internal server error
  */
 router.get(
-  "/",
+  '/',
   paginationValidation,
   validate,
-  transactionController.getTransactions
+  ...transactionController.getTransactions
 );
 
 /**
