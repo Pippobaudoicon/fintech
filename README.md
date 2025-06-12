@@ -37,6 +37,36 @@ A comprehensive fintech backend application built with Node.js, TypeScript, Expr
 - Redis (for rate limiting)
 - Docker & Docker Compose (optional)
 
+## 📬 Postman Collection
+
+A comprehensive Postman collection is included for testing all API endpoints. It covers user management, authentication, account operations, transactions, notifications, bulk operations, and audit log queries.
+
+- File: `Fintech_API.postman_collection.json`
+- Import this file into Postman to get started quickly.
+
+### Collection Features
+
+- **Environment Variables**: Uses `{{base_url}}`, `{{auth_token}}`, `{{user_id}}`, `{{account_id}}`, etc. for easy switching between environments.
+- **Automated Tests**: Many requests include test scripts to extract tokens, IDs, and set variables automatically.
+- **Covers:**
+  - User registration, login, profile, and logout
+  - Account creation, retrieval, and balance
+  - Transaction creation (deposit, withdrawal, transfer, payment)
+  - Bulk transaction operations
+  - Notification management
+  - Audit log retrieval and export
+
+### Usage
+
+1. Open Postman and click `Import`.
+2. Select the `Fintech_API.postman_collection.json` file from the project root.
+3. Set the `base_url` variable (e.g., `http://localhost:3000`).
+4. Run requests in sequence or use the collection runner for automated flows.
+
+> **Tip:** The collection automatically stores tokens and IDs as you run requests, making chained API testing seamless.
+
+---
+
 ## 🚀 Quick Start
 
 ### 1. Clone and Install Dependencies
@@ -105,11 +135,13 @@ npm run db:generate
 ### 5. Start the Application
 
 #### Development Mode
+
 ```bash
 npm run dev
 ```
 
 #### Production Mode
+
 ```bash
 npm run build
 npm start
@@ -128,7 +160,7 @@ Once the server is running, access the interactive API documentation:
 
 Run the test suite:
 
-```bash
+````bash
 # Run all tests
 npm test
 
@@ -149,9 +181,10 @@ The project includes comprehensive rate limiting tests:
 ```bash
 # Test rate limiting manually (requires server to be running)
 node scripts/test-rate-limiting.js
-```
+````
 
 The manual test script will:
+
 - Test global API rate limiting
 - Test authentication rate limiting (login/register)
 - Test financial operation rate limiting (transactions, transfers, payments)
@@ -223,22 +256,26 @@ Authorization: Bearer <your-jwt-token>
 ## 💰 Core API Endpoints
 
 ### Authentication
+
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - User login
 - `POST /api/auth/logout` - User logout
 
 ### Users
+
 - `GET /api/users/profile` - Get user profile
 - `PUT /api/users/profile` - Update user profile
 - `GET /api/users` - List users (Admin only)
 
 ### Accounts
+
 - `GET /api/accounts` - Get user accounts
 - `POST /api/accounts` - Create new account
 - `GET /api/accounts/:id` - Get account details
 - `GET /api/accounts/:id/transactions` - Get account transactions
 
 ### Transactions
+
 - `POST /api/transactions/transfer` - Transfer money between accounts
 - `POST /api/transactions/deposit` - Deposit money
 - `POST /api/transactions/withdraw` - Withdraw money
@@ -278,15 +315,18 @@ For detailed rate limiting documentation, see [RATE_LIMITING.md](./RATE_LIMITING
 - `npm start` - Start production server
 - `npm test` - Run tests
 - `npm run test:watch` - Run tests in watch mode
+- `npm run test:coverage` - Run tests with coverage
 - `npm run db:migrate` - Run database migrations
 - `npm run db:generate` - Generate Prisma client
 - `npm run db:studio` - Open Prisma Studio
 - `npm run docker:up` - Start Docker services
 - `npm run docker:down` - Stop Docker services
+- `npm run db:seed` - Seed the database with demo/test data
 
 ### Code Style
 
 The project uses TypeScript strict mode and follows these conventions:
+
 - ESLint for code linting
 - Prettier for code formatting
 - Husky for pre-commit hooks (optional)
@@ -297,6 +337,13 @@ The project uses TypeScript strict mode and follows these conventions:
 - **Log Levels**: error, warn, info, debug
 - **Log Files**: Stored in `logs/` directory
 - **Audit Trail**: All financial operations are logged with user context
+
+## 🛡️ Security & Performance Enhancements
+
+- **Security Headers**: Helmet is used to set secure HTTP headers by default.
+- **Input Validation & Sanitization**: All user input is validated and sanitized using express-validator and Joi schemas.
+- **Rate Limiting**: Redis-based rate limiting is enforced for all endpoints, with progressive limits for sensitive operations.
+- **Performance Profiling**: All API responses include an `X-Response-Time` header, and slow endpoints are logged for profiling and optimization.
 
 ## 🤝 Contributing
 
@@ -313,6 +360,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 🆘 Support
 
 For support and questions:
+
 - Check the API documentation at `/api-docs`
 - Review the test files for usage examples
 - Create an issue in the repository

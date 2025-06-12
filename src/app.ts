@@ -38,7 +38,7 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
 app.use(securityMiddleware);
-app.use(requestProfiler(500)); // Add request timing/profiling middleware
+app.use(requestProfiler(500));
 
 // Global rate limiting with Redis
 app.use(createRedisRateLimit({
