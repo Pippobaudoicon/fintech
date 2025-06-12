@@ -7,22 +7,86 @@ import { AccountService } from './accountService';
 export class TransactionService {
   private accountService = new AccountService();
 
+  /**
+   * Get the exchange rate between two currencies, always returns a number or throws a clear error.
+   */
+  private async getExchangeRateOrThrow(fromCurrency: string, toCurrency: string): Promise<number> {
+    if (fromCurrency === toCurrency) return 1;
+    const apiKey = process.env.EXCHANGE_API_KEY;
+    if (!apiKey) throw new Error('Exchange rate API key is missing. Set EXCHANGE_API_KEY in your environment.');
+    try {
+      const url = `https://v6.exchangerate-api.com/v6/${apiKey}/pair/${fromCurrency}/${toCurrency}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Exchange rate API error: ${response.statusText}`);
+      }
+      const data = (await response.json()) as { conversion_rate?: number };
+      if (typeof data.conversion_rate === 'number') {
+        return data.conversion_rate;
+      }
+      throw new Error('Exchange rate API returned invalid data');
+    } catch (err) {
+      throw new Error('Failed to fetch exchange rate: ' + (err as Error).message);
+    }
+  }
+
+  /**
+   * Handles currency conversion for deposits. Returns the correct amount, currency, and metadata.
+   */
+  private async prepareDepositAmountAndMeta(tx: any, transactionData: TransactionRequest, toAccount: any)
+    : Promise<{ amount: number; currency: string; metadata?: any }> {
+    const depositCurrency = transactionData.currency || 'USD';
+    const accountCurrency = toAccount.currency;
+    if (depositCurrency === accountCurrency) {
+      return { amount: transactionData.amount, currency: accountCurrency };
+    }
+    const rate = await this.getExchangeRateOrThrow(depositCurrency, accountCurrency);
+    const convertedAmount = parseFloat((transactionData.amount * rate).toFixed(2));
+    const metadata = {
+      originalAmount: transactionData.amount,
+      originalCurrency: depositCurrency,
+      convertedAmount,
+      accountCurrency,
+      conversionRate: rate,
+      conversionTimestamp: new Date().toISOString(),
+    };
+    return { amount: convertedAmount, currency: accountCurrency, metadata };
+  }
+
   async createTransaction(userId: string, transactionData: TransactionRequest) {
     const reference = generateTransactionReference();
-    
+
     return prisma.$transaction(async (tx) => {
+      let useAmount = transactionData.amount;
+      let useCurrency = transactionData.currency || 'USD';
+      let conversionMeta: any = undefined;
+
+      // Handle deposit with possible currency conversion
+      if (transactionData.type === TransactionType.DEPOSIT && transactionData.toAccountId) {
+        const toAccount = await tx.account.findUnique({ where: { id: transactionData.toAccountId } });
+        if (!toAccount) {
+          throw new Error('Destination account not found');
+        }
+        // Use the improved conversion handler
+        const result = await this.prepareDepositAmountAndMeta(tx, transactionData, toAccount);
+        useAmount = result.amount;
+        useCurrency = result.currency;
+        conversionMeta = result.metadata;
+      }
+
       // Create the transaction record
       const transaction = await tx.transaction.create({
         data: {
           userId,
-          amount: transactionData.amount,
-          currency: transactionData.currency || 'USD',
+          amount: useAmount,
+          currency: useCurrency,
           type: transactionData.type,
           description: transactionData.description,
           reference,
           fromAccountId: transactionData.fromAccountId,
           toAccountId: transactionData.toAccountId,
           status: TransactionStatus.PENDING,
+          metadata: conversionMeta,
         },
         include: {
           fromAccount: true,
@@ -40,7 +104,7 @@ export class TransactionService {
 
       // Handle balance updates based on transaction type
       if (transactionData.type === TransactionType.DEPOSIT && transactionData.toAccountId) {
-        await this.updateAccountBalance(tx, transactionData.toAccountId, transactionData.amount, 'add');
+        await this.updateAccountBalance(tx, transactionData.toAccountId, useAmount, 'add');
       } else if (transactionData.type === TransactionType.WITHDRAWAL && transactionData.fromAccountId) {
         await this.updateAccountBalance(tx, transactionData.fromAccountId, transactionData.amount, 'subtract');
       }
