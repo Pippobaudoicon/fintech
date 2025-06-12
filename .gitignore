@@ -9,3 +9,4 @@ dist
 .git
 migration_lock.toml
 coverage
+migration.sql
