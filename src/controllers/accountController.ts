@@ -98,10 +98,10 @@ export class AccountController {
       try {
         const { page, limit, skip } = parsePageAndLimit(req.query.page as string, req.query.limit as string);
         const { transactions, total } = await this.accountService.getAccountTransactions(
-          req.params.id, 
-          req.user!.id, 
-          page, 
-          limit, 
+          req.params.id,
+          req.user!.id,
+          page,
+          limit,
           skip
         );
         const pagination = calculatePagination(total, page, limit);

@@ -19,12 +19,15 @@ export function cacheResponse(getCacheKey: (req: AuthenticatedRequest) => string
         res.json(JSON.parse(cached));
         return;
       }
-      // Monkey-patch res.json to cache the response
+      // Monkey-patch res.json to cache only successful responses
       const originalJson = res.json.bind(res);
       res.json = (body: any) => {
-        redisClient.setEx(key, ttl, JSON.stringify(body)).catch((err) => {
-          logger.warn('Failed to cache response:', err);
-        });
+        // Only cache if status is 200 (success)
+        if (res.statusCode === 200) {
+          redisClient.setEx(key, ttl, JSON.stringify(body)).catch((err) => {
+            logger.warn('Failed to cache response:', err);
+          });
+        }
         res.setHeader('X-Cache', 'MISS');
         return originalJson(body);
       };

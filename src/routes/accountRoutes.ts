@@ -179,7 +179,7 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/accounts/my-accounts:
+ * /api/v1/accounts:
  *   get:
  *     summary: Get user's accounts
  *     tags: [Accounts]
