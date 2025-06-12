@@ -3,35 +3,71 @@ import { generateTransactionReference } from '../utils/helpers';
 import { TransactionRequest, TransferRequest, PaymentRequest, TransactionFilters, TransactionAnalytics } from '../types';
 import { TransactionType, TransactionStatus } from '@prisma/client';
 import { AccountService } from './accountService';
+import redisClient from '../config/redis';
 
 export class TransactionService {
   private accountService = new AccountService();
 
   /**
-   * Get the exchange rate between two currencies, always returns a number or throws a clear error.
+   * Fetches and caches the full USD rates table from the API if needed, using Redis.
    */
-  private async getExchangeRateOrThrow(fromCurrency: string, toCurrency: string): Promise<number> {
-    if (fromCurrency === toCurrency) return 1;
+  private async getUsdRates(): Promise<Record<string, number>> {
+    const CACHE_KEY = 'exchange:usd:rates';
+    const CACHE_TTL_SECONDS = 2 * 60 * 60; // 2 hours
+    // Try to get from Redis
+    const cached = await redisClient.get(CACHE_KEY);
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (parsed && typeof parsed === 'object') {
+          return parsed;
+        }
+      } catch (e) {
+        // Ignore parse error, will fetch fresh
+      }
+    }
+    // Fetch from API
     const apiKey = process.env.EXCHANGE_API_KEY;
     if (!apiKey) throw new Error('Exchange rate API key is missing. Set EXCHANGE_API_KEY in your environment.');
-    try {
-      const url = `https://v6.exchangerate-api.com/v6/${apiKey}/pair/${fromCurrency}/${toCurrency}`;
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Exchange rate API error: ${response.statusText}`);
-      }
-      const data = (await response.json()) as { conversion_rate?: number };
-      if (typeof data.conversion_rate === 'number') {
-        return data.conversion_rate;
-      }
-      throw new Error('Exchange rate API returned invalid data');
-    } catch (err) {
-      throw new Error('Failed to fetch exchange rate: ' + (err as Error).message);
+    const url = `https://v6.exchangerate-api.com/v6/${apiKey}/latest/USD`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Exchange rate API error: ${response.statusText}`);
     }
+    const data = (await response.json()) as { conversion_rates?: Record<string, number> };
+    if (!data.conversion_rates) {
+      throw new Error('Exchange rate API returned invalid data');
+    }
+    // Save to Redis
+    await redisClient.set(CACHE_KEY, JSON.stringify(data.conversion_rates), { EX: CACHE_TTL_SECONDS });
+    return data.conversion_rates;
+  }
+
+  /**
+   * Gets the conversion rate from one currency to another using the cached USD rates table.
+   * All conversions go through USD.
+   */
+  private async getCachedConversionRate(from: string, to: string): Promise<number> {
+    if (from === to) return 1;
+    const rates = await this.getUsdRates();
+    if (from === 'USD') {
+      if (!rates[to]) throw new Error(`No rate found for USD to ${to}`);
+      return rates[to];
+    }
+    if (to === 'USD') {
+      if (!rates[from]) throw new Error(`No rate found for ${from} to USD`);
+      return 1 / rates[from];
+    }
+    if (!rates[from] || !rates[to]) {
+      throw new Error(`No rate found for ${from} or ${to}`);
+    }
+    // Convert from 'from' to USD, then USD to 'to'
+    return (1 / rates[from]) * rates[to];
   }
 
   /**
    * Handles currency conversion for deposits. Returns the correct amount, currency, and metadata.
+   * Uses the cached USD rates table for conversion.
    */
   private async prepareDepositAmountAndMeta(tx: any, transactionData: TransactionRequest, toAccount: any)
     : Promise<{ amount: number; currency: string; metadata?: any }> {
@@ -40,7 +76,7 @@ export class TransactionService {
     if (depositCurrency === accountCurrency) {
       return { amount: transactionData.amount, currency: accountCurrency };
     }
-    const rate = await this.getExchangeRateOrThrow(depositCurrency, accountCurrency);
+    const rate = await this.getCachedConversionRate(depositCurrency, accountCurrency);
     const convertedAmount = parseFloat((transactionData.amount * rate).toFixed(2));
     const metadata = {
       originalAmount: transactionData.amount,
