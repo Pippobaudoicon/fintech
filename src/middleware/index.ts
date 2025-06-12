@@ -7,6 +7,7 @@ import morgan from 'morgan';
 import config from '../config/config';
 import logger from '../utils/logger';
 import { errorResponse } from '../utils/helpers';
+import { requestProfiler } from './profiler';
 
 // Export Redis rate limiters
 export {
@@ -70,8 +71,8 @@ export const errorHandler = (
   }
 
   const statusCode = error.statusCode || 500;
-  const message = config.nodeEnv === 'production' 
-    ? 'Internal server error' 
+  const message = config.nodeEnv === 'production'
+    ? 'Internal server error'
     : error.message;
 
   res.status(statusCode).json(errorResponse(message));
@@ -95,8 +96,8 @@ export const securityMiddleware = [
     },
   }),
   cors({
-    origin: config.nodeEnv === 'production' 
-      ? ['https://yourdomain.com'] 
+    origin: config.nodeEnv === 'production'
+      ? ['https://yourdomain.com']
       : ['http://localhost:3000', 'http://localhost:3001'],
     credentials: true,
   }),
@@ -110,3 +111,5 @@ export const requestLogger = morgan('combined', {
     },
   },
 });
+
+export { requestProfiler } from './profiler';

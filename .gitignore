@@ -10,3 +10,5 @@ dist
 migration_lock.toml
 coverage
 migration.sql
+migrations
+/audit-report.json

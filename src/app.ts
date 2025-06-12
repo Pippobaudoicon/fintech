@@ -11,6 +11,7 @@ import {
   notFound,
   createRateLimit,
   createRedisRateLimit,
+  requestProfiler,
 } from "./middleware";
 import routes from "./routes";
 import logger from "./utils/logger";
@@ -37,6 +38,7 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
 app.use(securityMiddleware);
+app.use(requestProfiler(500)); // Add request timing/profiling middleware
 
 // Global rate limiting with Redis
 app.use(createRedisRateLimit({
@@ -92,12 +94,12 @@ const gracefulShutdown = async () => {
     try {
       await prisma.$disconnect();
       logger.info("Database connection closed");
-      
+
       // Disconnect Redis
       const { disconnectRedis } = await import("./config/redis");
       await disconnectRedis();
       logger.info("Redis connection closed");
-      
+
       process.exit(0);
     } catch (error) {
       logger.error("Error during graceful shutdown:", error);
