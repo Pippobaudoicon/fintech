@@ -1,7 +1,7 @@
-import { TransactionType } from "@prisma/client";
-import prisma from "../config/database";
-import logger from "../utils/logger";
-import { TransactionService } from "./transactionService";
+import { TransactionType } from '@prisma/client';
+import prisma from '../config/database';
+import logger from '../utils/logger';
+import { TransactionService } from './transactionService';
 
 const transactionService = new TransactionService();
 
@@ -25,16 +25,16 @@ interface BulkTransactionResult {
 class BulkTransactionService {
   async createBulkTransaction(
     userId: string,
-    request: BulkTransactionRequest
+    request: BulkTransactionRequest,
   ): Promise<BulkTransactionResult> {
     try {
       // Validate transaction limits
       if (request.transactions.length === 0) {
-        throw new Error("No transactions provided");
+        throw new Error('No transactions provided');
       }
 
       if (request.transactions.length > 1000) {
-        throw new Error("Maximum 1000 transactions per batch");
+        throw new Error('Maximum 1000 transactions per batch');
       }
 
       // Validate all accounts exist and belong to user or are accessible
@@ -45,8 +45,8 @@ class BulkTransactionService {
       await prisma.auditLog.create({
         data: {
           userId,
-          action: "CREATE_BULK_TRANSACTION",
-          resource: "bulk_transaction_batch",
+          action: 'CREATE_BULK_TRANSACTION',
+          resource: 'bulk_transaction_batch',
           details: {
             totalTransactions: request.transactions.length,
             scheduledFor: request.scheduledFor,
@@ -70,17 +70,16 @@ class BulkTransactionService {
       // Calculate estimated completion time
       const estimatedCompletionTime = new Date();
       estimatedCompletionTime.setSeconds(
-        estimatedCompletionTime.getSeconds() + request.transactions.length
+        estimatedCompletionTime.getSeconds() + request.transactions.length,
       );
 
       return {
         batchId,
-        message: "Bulk transaction batch accepted for processing",
-        estimatedCompletionTime:
-          request.scheduledFor || estimatedCompletionTime,
+        message: 'Bulk transaction batch accepted for processing',
+        estimatedCompletionTime: request.scheduledFor || estimatedCompletionTime,
       };
     } catch (error) {
-      logger.error("Error creating bulk transaction:", error);
+      logger.error('Error creating bulk transaction:', error);
       throw error;
     }
   }
@@ -90,10 +89,10 @@ class BulkTransactionService {
       // For now, simulate status retrieval from audit logs
       const auditEntry = await prisma.auditLog.findFirst({
         where: {
-          action: "CREATE_BULK_TRANSACTION",
-          resource: "bulk_transaction_batch",
+          action: 'CREATE_BULK_TRANSACTION',
+          resource: 'bulk_transaction_batch',
           details: {
-            path: ["batchId"],
+            path: ['batchId'],
             equals: batchId,
           },
         },
@@ -108,7 +107,7 @@ class BulkTransactionService {
       });
 
       if (!auditEntry) {
-        throw new Error("Bulk transaction batch not found");
+        throw new Error('Bulk transaction batch not found');
       }
 
       const details = auditEntry.details as any;
@@ -116,21 +115,18 @@ class BulkTransactionService {
       // Simulate status based on time elapsed
       const now = new Date();
       const createdAt = auditEntry.createdAt;
-      const minutesElapsed =
-        (now.getTime() - createdAt.getTime()) / (1000 * 60);
+      const minutesElapsed = (now.getTime() - createdAt.getTime()) / (1000 * 60);
 
-      let status = "PENDING";
+      let status = 'PENDING';
       let successfulTransactions = 0;
       const failedTransactions = 0;
 
       if (minutesElapsed > 2) {
-        status = "COMPLETED";
+        status = 'COMPLETED';
         successfulTransactions = details.totalTransactions || 0;
       } else if (minutesElapsed > 0.5) {
-        status = "PROCESSING";
-        successfulTransactions = Math.floor(
-          (details.totalTransactions || 0) * 0.7
-        );
+        status = 'PROCESSING';
+        successfulTransactions = Math.floor((details.totalTransactions || 0) * 0.7);
       }
 
       return {
@@ -140,20 +136,16 @@ class BulkTransactionService {
         successfulTransactions,
         failedTransactions,
         createdAt,
-        completedAt: status === "COMPLETED" ? now : undefined,
+        completedAt: status === 'COMPLETED' ? now : undefined,
         results: [], // Placeholder for individual transaction results
       };
     } catch (error) {
-      logger.error("Error getting bulk transaction status:", error);
+      logger.error('Error getting bulk transaction status:', error);
       throw error;
     }
   }
 
-  async getUserBulkTransactions(
-    userId: string,
-    page: number = 1,
-    limit: number = 10
-  ) {
+  async getUserBulkTransactions(userId: string, page: number = 1, limit: number = 10) {
     try {
       const skip = (page - 1) * limit;
 
@@ -161,11 +153,11 @@ class BulkTransactionService {
         prisma.auditLog.findMany({
           where: {
             userId,
-            action: "CREATE_BULK_TRANSACTION",
-            resource: "bulk_transaction_batch",
+            action: 'CREATE_BULK_TRANSACTION',
+            resource: 'bulk_transaction_batch',
           },
           orderBy: {
-            createdAt: "desc",
+            createdAt: 'desc',
           },
           skip,
           take: limit,
@@ -173,8 +165,8 @@ class BulkTransactionService {
         prisma.auditLog.count({
           where: {
             userId,
-            action: "CREATE_BULK_TRANSACTION",
-            resource: "bulk_transaction_batch",
+            action: 'CREATE_BULK_TRANSACTION',
+            resource: 'bulk_transaction_batch',
           },
         }),
       ]);
@@ -183,25 +175,21 @@ class BulkTransactionService {
 
       const batches = auditEntries.map((entry) => {
         const details = entry.details as any;
-        const minutesElapsed =
-          (new Date().getTime() - entry.createdAt.getTime()) / (1000 * 60);
+        const minutesElapsed = (new Date().getTime() - entry.createdAt.getTime()) / (1000 * 60);
 
-        let status = "PENDING";
-        if (minutesElapsed > 2) status = "COMPLETED";
-        else if (minutesElapsed > 0.5) status = "PROCESSING";
+        let status = 'PENDING';
+        if (minutesElapsed > 2) status = 'COMPLETED';
+        else if (minutesElapsed > 0.5) status = 'PROCESSING';
 
         return {
           batchId: details.batchId || `batch_${entry.createdAt.getTime()}`,
           status,
           totalTransactions: details.totalTransactions || 0,
-          successfulTransactions:
-            status === "COMPLETED" ? details.totalTransactions || 0 : 0,
+          successfulTransactions: status === 'COMPLETED' ? details.totalTransactions || 0 : 0,
           failedTransactions: 0,
           createdAt: entry.createdAt,
-          completedAt: status === "COMPLETED" ? new Date() : null,
-          scheduledFor: details.scheduledFor
-            ? new Date(details.scheduledFor)
-            : null,
+          completedAt: status === 'COMPLETED' ? new Date() : null,
+          scheduledFor: details.scheduledFor ? new Date(details.scheduledFor) : null,
         };
       });
 
@@ -216,14 +204,14 @@ class BulkTransactionService {
         },
       };
     } catch (error) {
-      logger.error("Error getting user bulk transactions:", error);
+      logger.error('Error getting user bulk transactions:', error);
       throw error;
     }
   }
 
   private async validateAccounts(
     userId: string,
-    transactions: BulkTransactionRequest["transactions"]
+    transactions: BulkTransactionRequest['transactions'],
   ): Promise<void> {
     const accountIds = new Set<string>();
     transactions.forEach((transaction) => {
@@ -247,7 +235,7 @@ class BulkTransactionService {
 
     // Check all accounts exist
     if (accounts.length !== accountIds.size) {
-      throw new Error("One or more accounts not found");
+      throw new Error('One or more accounts not found');
     }
 
     // Check account access and status
@@ -261,10 +249,7 @@ class BulkTransactionService {
     const balanceCheck = new Map<string, number>();
     transactions.forEach((transaction) => {
       const currentTotal = balanceCheck.get(transaction.fromAccountId) || 0;
-      balanceCheck.set(
-        transaction.fromAccountId,
-        currentTotal + transaction.amount
-      );
+      balanceCheck.set(transaction.fromAccountId, currentTotal + transaction.amount);
     });
 
     for (const [accountId, totalAmount] of balanceCheck) {
@@ -278,24 +263,24 @@ class BulkTransactionService {
   private async processBulkTransactionAsync(
     batchId: string,
     userId: string,
-    transactions: BulkTransactionRequest["transactions"]
+    transactions: BulkTransactionRequest['transactions'],
   ): Promise<void> {
     // Simulate async processing
     setTimeout(async () => {
       try {
         logger.info(
-          `Processing bulk transaction batch ${batchId} with ${transactions.length} transactions`
+          `Processing bulk transaction batch ${batchId} with ${transactions.length} transactions`,
         );
 
         // For demonstration, log the processing
         await prisma.auditLog.create({
           data: {
             userId,
-            action: "PROCESS_BULK_TRANSACTION",
-            resource: "bulk_transaction_processing",
+            action: 'PROCESS_BULK_TRANSACTION',
+            resource: 'bulk_transaction_processing',
             details: {
               batchId,
-              status: "PROCESSING",
+              status: 'PROCESSING',
               totalTransactions: transactions.length,
             },
           },
@@ -306,11 +291,11 @@ class BulkTransactionService {
           await prisma.auditLog.create({
             data: {
               userId,
-              action: "COMPLETE_BULK_TRANSACTION",
-              resource: "bulk_transaction_processing",
+              action: 'COMPLETE_BULK_TRANSACTION',
+              resource: 'bulk_transaction_processing',
               details: {
                 batchId,
-                status: "COMPLETED",
+                status: 'COMPLETED',
                 totalTransactions: transactions.length,
                 successfulTransactions: transactions.length,
                 failedTransactions: 0,
@@ -318,15 +303,10 @@ class BulkTransactionService {
             },
           });
 
-          logger.info(
-            `Bulk transaction batch ${batchId} completed successfully`
-          );
+          logger.info(`Bulk transaction batch ${batchId} completed successfully`);
         }, 30000); // Complete after 30 seconds
       } catch (error) {
-        logger.error(
-          `Error processing bulk transaction batch ${batchId}:`,
-          error
-        );
+        logger.error(`Error processing bulk transaction batch ${batchId}:`, error);
       }
     }, 1000); // Start processing after 1 second
   }

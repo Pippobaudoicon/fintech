@@ -45,11 +45,13 @@ export function cacheResponse(getCacheKey: (req: AuthenticatedRequest) => string
 export function transactionListCacheKey(req: AuthenticatedRequest) {
   const userId = req.user?.id || 'anon';
   const { page = 1, limit = 10, ...filters } = req.query;
-  return `transactions:${userId}:page=${page}:limit=${limit}:` +
+  return (
+    `transactions:${userId}:page=${page}:limit=${limit}:` +
     Object.entries(filters)
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([k, v]) => `${k}=${v}`)
-      .join('&');
+      .join('&')
+  );
 }
 
 /**

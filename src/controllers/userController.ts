@@ -1,7 +1,12 @@
 import { Request, Response } from 'express';
 import { UserService } from '../services/userService';
 import { AuthenticatedRequest } from '../types';
-import { successResponse, errorResponse, parsePageAndLimit, calculatePagination } from '../utils/helpers';
+import {
+  successResponse,
+  errorResponse,
+  parsePageAndLimit,
+  calculatePagination,
+} from '../utils/helpers';
 import logger from '../utils/logger';
 
 export class UserController {
@@ -13,7 +18,14 @@ export class UserController {
     } catch (error: any) {
       logger.error('Registration error:', error);
       if (error.message && error.message.includes('email')) {
-        res.status(409).json(errorResponse('Email already exists', 'A user with this email address is already registered'));
+        res
+          .status(409)
+          .json(
+            errorResponse(
+              'Email already exists',
+              'A user with this email address is already registered',
+            ),
+          );
         return;
       }
       res.status(400).json(errorResponse('Registration failed', error.message));
@@ -65,7 +77,10 @@ export class UserController {
 
   getAllUsers = async (req: Request, res: Response) => {
     try {
-      const { page, limit, skip } = parsePageAndLimit(req.query.page as string, req.query.limit as string);
+      const { page, limit, skip } = parsePageAndLimit(
+        req.query.page as string,
+        req.query.limit as string,
+      );
       const { users, total } = await this.userService.getAllUsers(page, limit, skip);
       const pagination = calculatePagination(total, page, limit);
 
@@ -109,8 +124,16 @@ export class UserController {
 
   getNotifications = async (req: AuthenticatedRequest, res: Response) => {
     try {
-      const { page, limit, skip } = parsePageAndLimit(req.query.page as string, req.query.limit as string);
-      const { notifications, total } = await this.userService.getUserNotifications(req.user!.id, page, limit, skip);
+      const { page, limit, skip } = parsePageAndLimit(
+        req.query.page as string,
+        req.query.limit as string,
+      );
+      const { notifications, total } = await this.userService.getUserNotifications(
+        req.user!.id,
+        page,
+        limit,
+        skip,
+      );
       const pagination = calculatePagination(total, page, limit);
 
       res.json(successResponse('Notifications retrieved successfully', notifications, pagination));
@@ -173,7 +196,7 @@ export class UserController {
       }
       // Find current session
       const sessions = await this.userService.listSessions(req.user!.id);
-      const session = sessions.find(s => s.token === currentToken);
+      const session = sessions.find((s) => s.token === currentToken);
       if (!session) {
         res.status(404).json(errorResponse('Current session not found'));
         return;

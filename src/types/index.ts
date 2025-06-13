@@ -1,5 +1,11 @@
 import { Request } from 'express';
-import { UserRole, AccountType, TransactionType, TransactionStatus, KYCStatus } from '@prisma/client';
+import {
+  UserRole,
+  AccountType,
+  TransactionType,
+  TransactionStatus,
+  KYCStatus,
+} from '@prisma/client';
 
 export interface AuthenticatedRequest extends Request {
   user?: {

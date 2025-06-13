@@ -1,11 +1,11 @@
-import { Router } from "express";
+import { Router } from 'express';
 import {
   auditController,
   validateAuditLogQuery,
   validateAuditLogExport,
   validateAuditStatistics,
-} from "../controllers/auditController";
-import { authenticate } from "../middleware/auth";
+} from '../controllers/auditController';
+import { authenticate } from '../middleware/auth';
 
 const router = Router();
 
@@ -151,12 +151,7 @@ const router = Router();
  *       403:
  *         description: Insufficient permissions
  */
-router.get(
-  "/logs",
-  authenticate,
-  validateAuditLogQuery,
-  auditController.getAuditLogs
-);
+router.get('/logs', authenticate, validateAuditLogQuery, auditController.getAuditLogs);
 
 /**
  * @swagger
@@ -215,12 +210,7 @@ router.get(
  *       403:
  *         description: Insufficient permissions
  */
-router.get(
-  "/export",
-  authenticate,
-  validateAuditLogExport,
-  auditController.exportAuditLogs
-);
+router.get('/export', authenticate, validateAuditLogExport, auditController.exportAuditLogs);
 
 /**
  * @swagger
@@ -276,10 +266,10 @@ router.get(
  *         description: Insufficient permissions
  */
 router.get(
-  "/statistics",
+  '/statistics',
   authenticate,
   validateAuditStatistics,
-  auditController.getAuditStatistics
+  auditController.getAuditStatistics,
 );
 
 export default router;

@@ -54,7 +54,7 @@ export const createRedisRateLimit = (options: RateLimitOptions) => {
         logger.warn('Redis not connected, skipping rate limiting');
         next();
         return;
-      }      // Use Redis sorted sets for sliding window
+      } // Use Redis sorted sets for sliding window
       const multi = redisClient.multi();
 
       // Remove expired entries from the sliding window
@@ -94,7 +94,8 @@ export const createRedisRateLimit = (options: RateLimitOptions) => {
       }
 
       // Check if rate limit exceeded (currentCount + 1 for the request we just added)
-      if (currentCount + 1 > maxRequests) {        // Remove the request we just added since it's rejected
+      if (currentCount + 1 > maxRequests) {
+        // Remove the request we just added since it's rejected
         await redisClient.zRem(key, requestId);
 
         logger.warn(`Rate limit exceeded for key: ${key}`, {
@@ -103,10 +104,12 @@ export const createRedisRateLimit = (options: RateLimitOptions) => {
           ip: req.ip,
           userAgent: req.get('User-Agent'),
           path: req.path,
-        });        // Calculate retry after time (time until oldest request expires)
-        const oldestTimestamp = await redisClient.zRangeWithScores(key, 0, 0); const retryAfter = oldestTimestamp && Array.isArray(oldestTimestamp) && oldestTimestamp.length > 0
-          ? Math.ceil((oldestTimestamp[0].score + windowMs - now) / 1000)
-          : Math.ceil(windowMs / 1000);
+        }); // Calculate retry after time (time until oldest request expires)
+        const oldestTimestamp = await redisClient.zRangeWithScores(key, 0, 0);
+        const retryAfter =
+          oldestTimestamp && Array.isArray(oldestTimestamp) && oldestTimestamp.length > 0
+            ? Math.ceil((oldestTimestamp[0].score + windowMs - now) / 1000)
+            : Math.ceil(windowMs / 1000);
 
         res.status(429).json({
           success: false,
@@ -116,7 +119,7 @@ export const createRedisRateLimit = (options: RateLimitOptions) => {
             limit: maxRequests,
             remaining: 0,
             resetTime: resetTime.toISOString(),
-          }
+          },
         });
         return;
       }
@@ -214,7 +217,7 @@ export const createAuthRateLimit = (options: Partial<RateLimitOptions> = {}) => 
 export const getRateLimitStatus = async (
   key: string,
   windowMs: number,
-  maxRequests: number
+  maxRequests: number,
 ): Promise<RateLimitInfo | null> => {
   try {
     if (!redisClient.isReady) {
@@ -222,19 +225,21 @@ export const getRateLimitStatus = async (
     }
 
     const now = Date.now();
-    const windowStart = now - windowMs; const multi = redisClient.multi();
+    const windowStart = now - windowMs;
+    const multi = redisClient.multi();
     // Remove expired entries
     multi.zRemRangeByScore(key, 0, windowStart);
     // Count current requests
-    multi.zCard(key);    // Get oldest request timestamp for reset time calculation
+    multi.zCard(key); // Get oldest request timestamp for reset time calculation
     multi.zRangeWithScores(key, 0, 0);
 
     const results = await multi.exec();
 
     if (!results) {
       return null;
-    } const currentCount = Number((results[1] as any)?.[1]) || 0;
-    const oldestTimestamp = (results[2] as any)?.[1];    // Calculate reset time based on when the oldest request will expire
+    }
+    const currentCount = Number((results[1] as any)?.[1]) || 0;
+    const oldestTimestamp = (results[2] as any)?.[1]; // Calculate reset time based on when the oldest request will expire
     let resetTime: Date;
     if (oldestTimestamp && Array.isArray(oldestTimestamp) && oldestTimestamp.length > 0) {
       const oldestTime = oldestTimestamp[0].score;

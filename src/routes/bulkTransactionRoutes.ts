@@ -1,12 +1,12 @@
-import { Router } from "express";
+import { Router } from 'express';
 import {
   bulkTransactionController,
   validateCreateBulkTransaction,
   validateBatchId,
   validatePagination,
-} from "../controllers/bulkTransactionController";
-import { authenticate } from "../middleware/auth";
-import { createFinancialRateLimit } from "../middleware";
+} from '../controllers/bulkTransactionController';
+import { authenticate } from '../middleware/auth';
+import { createFinancialRateLimit } from '../middleware';
 
 const router = Router();
 
@@ -140,15 +140,15 @@ const router = Router();
  *         description: Too many bulk operations in progress
  */
 router.post(
-  "/",
+  '/',
   authenticate,
   createFinancialRateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
     maxRequests: 2, // 2 bulk operations per 5 minutes
-    message: 'Too many bulk transaction attempts, please try again later'
+    message: 'Too many bulk transaction attempts, please try again later',
   }),
   validateCreateBulkTransaction,
-  bulkTransactionController.createBulkTransaction
+  bulkTransactionController.createBulkTransaction,
 );
 
 /**
@@ -182,10 +182,10 @@ router.post(
  *         description: Bulk transaction batch not found
  */
 router.get(
-  "/:batchId/status",
+  '/:batchId/status',
   authenticate,
   validateBatchId,
-  bulkTransactionController.getBulkTransactionStatus
+  bulkTransactionController.getBulkTransactionStatus,
 );
 
 /**
@@ -266,10 +266,10 @@ router.get(
  *         description: Failed to retrieve bulk transactions
  */
 router.get(
-  "/history",
+  '/history',
   authenticate,
   validatePagination,
-  bulkTransactionController.getUserBulkTransactions
+  bulkTransactionController.getUserBulkTransactions,
 );
 
 export default router;

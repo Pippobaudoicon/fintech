@@ -30,13 +30,13 @@ export class UserService {
     const isValidPassword = await comparePassword(credentials.password, user.password);
     if (!isValidPassword) {
       throw new Error('Invalid credentials');
-    }    // Add some randomness to make token unique in tests where we quickly create multiple sessions
+    } // Add some randomness to make token unique in tests where we quickly create multiple sessions
     const randomSuffix = Date.now().toString(36) + Math.random().toString(36).substring(2);
     const token = generateToken({
       userId: user.id,
       email: user.email,
       role: user.role,
-      nonce: randomSuffix // Add randomness to prevent token collisions
+      nonce: randomSuffix, // Add randomness to prevent token collisions
     });
 
     let session;
@@ -50,7 +50,7 @@ export class UserService {
         },
       });
     } catch (error) {
-      console.log("Session creation warning:", error);
+      console.log('Session creation warning:', error);
     }
 
     return {

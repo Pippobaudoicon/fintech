@@ -20,7 +20,6 @@ const startServer = async () => {
       logger.info(`📚 API Documentation available at http://localhost:${config.port}/api-docs`);
       logger.info(`🔗 Health check available at http://localhost:${config.port}/api/v1/health`);
     });
-
   } catch (error) {
     logger.error('Failed to start server:', error);
     process.exit(1);

@@ -2,10 +2,7 @@ import { body, param, query } from 'express-validator';
 import { AccountType, TransactionType } from '@prisma/client';
 
 export const registerValidation = [
-  body('email')
-    .isEmail()
-    .normalizeEmail()
-    .withMessage('Please provide a valid email'),
+  body('email').isEmail().normalizeEmail().withMessage('Please provide a valid email'),
   body('firstName')
     .trim()
     .isLength({ min: 2, max: 50 })
@@ -17,25 +14,16 @@ export const registerValidation = [
   body('password')
     .isLength({ min: 8 })
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
-    .withMessage('Password must be at least 8 characters with uppercase, lowercase, number and special character'),
-  body('phone')
-    .optional()
-    .isMobilePhone('any')
-    .withMessage('Please provide a valid phone number'),
-  body('dateOfBirth')
-    .optional()
-    .isISO8601()
-    .withMessage('Please provide a valid date of birth'),
+    .withMessage(
+      'Password must be at least 8 characters with uppercase, lowercase, number and special character',
+    ),
+  body('phone').optional().isMobilePhone('any').withMessage('Please provide a valid phone number'),
+  body('dateOfBirth').optional().isISO8601().withMessage('Please provide a valid date of birth'),
 ];
 
 export const loginValidation = [
-  body('email')
-    .isEmail()
-    .normalizeEmail()
-    .withMessage('Please provide a valid email'),
-  body('password')
-    .notEmpty()
-    .withMessage('Password is required'),
+  body('email').isEmail().normalizeEmail().withMessage('Please provide a valid email'),
+  body('password').notEmpty().withMessage('Password is required'),
 ];
 
 export const createAccountValidation = [
@@ -49,9 +37,7 @@ export const createAccountValidation = [
 ];
 
 export const transactionValidation = [
-  body('amount')
-    .isFloat({ min: 0.01 })
-    .withMessage('Amount must be greater than 0'),
+  body('amount').isFloat({ min: 0.01 }).withMessage('Amount must be greater than 0'),
   body('type')
     .isIn(Object.values(TransactionType))
     .withMessage('Please provide a valid transaction type'),
@@ -67,15 +53,9 @@ export const transactionValidation = [
 ];
 
 export const transferValidation = [
-  body('fromAccountId')
-    .notEmpty()
-    .withMessage('Source account ID is required'),
-  body('toAccountId')
-    .notEmpty()
-    .withMessage('Destination account ID is required'),
-  body('amount')
-    .isFloat({ min: 0.01 })
-    .withMessage('Amount must be greater than 0'),
+  body('fromAccountId').notEmpty().withMessage('Source account ID is required'),
+  body('toAccountId').notEmpty().withMessage('Destination account ID is required'),
+  body('amount').isFloat({ min: 0.01 }).withMessage('Amount must be greater than 0'),
   body('description')
     .optional()
     .trim()
@@ -84,12 +64,8 @@ export const transferValidation = [
 ];
 
 export const paymentValidation = [
-  body('accountId')
-    .notEmpty()
-    .withMessage('Account ID is required'),
-  body('amount')
-    .isFloat({ min: 0.01 })
-    .withMessage('Amount must be greater than 0'),
+  body('accountId').notEmpty().withMessage('Account ID is required'),
+  body('amount').isFloat({ min: 0.01 }).withMessage('Amount must be greater than 0'),
   body('description')
     .trim()
     .isLength({ min: 1, max: 255 })
@@ -105,10 +81,7 @@ export const paymentValidation = [
 ];
 
 export const paginationValidation = [
-  query('page')
-    .optional()
-    .isInt({ min: 1 })
-    .withMessage('Page must be a positive integer'),
+  query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
   query('limit')
     .optional()
     .isInt({ min: 1, max: 100 })
@@ -116,18 +89,8 @@ export const paginationValidation = [
 ];
 
 export const dateRangeValidation = [
-  query('startDate')
-    .optional()
-    .isISO8601()
-    .withMessage('Start date must be a valid ISO date'),
-  query('endDate')
-    .optional()
-    .isISO8601()
-    .withMessage('End date must be a valid ISO date'),
+  query('startDate').optional().isISO8601().withMessage('Start date must be a valid ISO date'),
+  query('endDate').optional().isISO8601().withMessage('End date must be a valid ISO date'),
 ];
 
-export const idValidation = [
-  param('id')
-    .notEmpty()
-    .withMessage('ID parameter is required'),
-];
+export const idValidation = [param('id').notEmpty().withMessage('ID parameter is required')];

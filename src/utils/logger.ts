@@ -8,7 +8,7 @@ const logger = winston.createLogger({
       format: 'YYYY-MM-DD HH:mm:ss',
     }),
     winston.format.errors({ stack: true }),
-    winston.format.json()
+    winston.format.json(),
   ),
   defaultMeta: { service: 'fintech-api' },
   transports: [
@@ -21,7 +21,7 @@ if (config.nodeEnv !== 'production') {
   logger.add(
     new winston.transports.Console({
       format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
-    })
+    }),
   );
 }
 

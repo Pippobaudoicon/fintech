@@ -1,7 +1,12 @@
 import { Request, Response } from 'express';
 import { TransactionService } from '../services/transactionService';
 import { AuthenticatedRequest, TransactionFilters, AnalyticsQuery } from '../types';
-import { successResponse, errorResponse, parsePageAndLimit, calculatePagination } from '../utils/helpers';
+import {
+  successResponse,
+  errorResponse,
+  parsePageAndLimit,
+  calculatePagination,
+} from '../utils/helpers';
 import logger from '../utils/logger';
 import { cacheResponse, transactionListCacheKey } from '../middleware/cache';
 
@@ -19,7 +24,10 @@ export class TransactionController {
 
   transferBetweenAccounts = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
-      const transaction = await this.transactionService.transferBetweenAccounts(req.user!.id, req.body);
+      const transaction = await this.transactionService.transferBetweenAccounts(
+        req.user!.id,
+        req.body,
+      );
       res.status(201).json(successResponse('Transfer completed successfully', transaction));
     } catch (error: any) {
       logger.error('Transfer error:', error);
@@ -40,7 +48,10 @@ export class TransactionController {
     cacheResponse(transactionListCacheKey, 60),
     async (req: AuthenticatedRequest, res: Response): Promise<void> => {
       try {
-        const { page, limit, skip } = parsePageAndLimit(req.query.page as string, req.query.limit as string);
+        const { page, limit, skip } = parsePageAndLimit(
+          req.query.page as string,
+          req.query.limit as string,
+        );
         const filters: TransactionFilters = {
           accountId: req.query.accountId as string,
           type: req.query.type as any,
@@ -58,7 +69,7 @@ export class TransactionController {
           filters,
           page,
           limit,
-          skip
+          skip,
         );
         const pagination = calculatePagination(total, page, limit);
 
@@ -67,12 +78,15 @@ export class TransactionController {
         logger.error('Get transactions error:', error);
         res.status(500).json(errorResponse('Failed to retrieve transactions', error.message));
       }
-    }
+    },
   ];
 
   getTransactionById = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
-      const transaction = await this.transactionService.getTransactionById(req.params.id, req.user!.id);
+      const transaction = await this.transactionService.getTransactionById(
+        req.params.id,
+        req.user!.id,
+      );
       res.json(successResponse('Transaction retrieved successfully', transaction));
     } catch (error: any) {
       logger.error('Get transaction by ID error:', error);
@@ -81,8 +95,8 @@ export class TransactionController {
   };
   getTransactionAnalytics = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
-            const { period, startDate, endDate } = req.query;
-      
+      const { period, startDate, endDate } = req.query;
+
       if (!period || typeof period !== 'string') {
         res.status(400).json(errorResponse('Period is required'));
         return;
@@ -90,7 +104,9 @@ export class TransactionController {
 
       const validPeriods = ['day', 'week', 'month', 'year'];
       if (!validPeriods.includes(period)) {
-        res.status(400).json(errorResponse('Invalid period. Must be one of: day, week, month, year'));
+        res
+          .status(400)
+          .json(errorResponse('Invalid period. Must be one of: day, week, month, year'));
         return;
       }
 
@@ -98,7 +114,7 @@ export class TransactionController {
         req.user!.id,
         period as 'day' | 'week' | 'month' | 'year',
         typeof startDate === 'string' ? startDate : undefined,
-        typeof endDate === 'string' ? endDate : undefined
+        typeof endDate === 'string' ? endDate : undefined,
       );
 
       res.json(successResponse('Transaction analytics retrieved successfully', analytics));
@@ -110,7 +126,10 @@ export class TransactionController {
   // Admin endpoints
   getAllTransactions = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { page, limit, skip } = parsePageAndLimit(req.query.page as string, req.query.limit as string);
+      const { page, limit, skip } = parsePageAndLimit(
+        req.query.page as string,
+        req.query.limit as string,
+      );
       const filters: TransactionFilters = {
         accountId: req.query.accountId as string,
         type: req.query.type as any,
@@ -137,7 +156,7 @@ export class TransactionController {
       const transaction = await this.transactionService.getTransactionById(req.params.id);
       res.json(successResponse('Transaction retrieved successfully', transaction));
     } catch (error: any) {
-            logger.error('Get transaction by ID (admin) error:', error);
+      logger.error('Get transaction by ID (admin) error:', error);
       res.status(404).json(errorResponse('Transaction not found', error.message));
     }
   };

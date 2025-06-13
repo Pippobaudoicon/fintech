@@ -1,9 +1,9 @@
-import { Router } from "express";
-import userRoutes from "./userRoutes";
-import accountRoutes from "./accountRoutes";
-import transactionRoutes from "./transactionRoutes";
-import auditRoutes from "./auditRoutes";
-import bulkTransactionRoutes from "./bulkTransactionRoutes";
+import { Router } from 'express';
+import userRoutes from './userRoutes';
+import accountRoutes from './accountRoutes';
+import transactionRoutes from './transactionRoutes';
+import auditRoutes from './auditRoutes';
+import bulkTransactionRoutes from './bulkTransactionRoutes';
 
 /**
  * @swagger
@@ -60,20 +60,20 @@ const router = Router();
  *                   example: "1.0.0"
  */
 // Health check endpoint
-router.get("/health", (req, res) => {
+router.get('/health', (req, res) => {
   res.json({
-    status: "OK",
+    status: 'OK',
     timestamp: new Date().toISOString(),
-    service: "Fintech API",
-    version: "1.0.0",
+    service: 'Fintech API',
+    version: '1.0.0',
   });
 });
 
 // API routes
-router.use("/users", userRoutes);
-router.use("/accounts", accountRoutes);
-router.use("/transactions", transactionRoutes);
-router.use("/audit", auditRoutes);
-router.use("/bulk-transactions", bulkTransactionRoutes);
+router.use('/users', userRoutes);
+router.use('/accounts', accountRoutes);
+router.use('/transactions', transactionRoutes);
+router.use('/audit', auditRoutes);
+router.use('/bulk-transactions', bulkTransactionRoutes);
 
 export default router;

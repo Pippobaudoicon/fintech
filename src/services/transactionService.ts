@@ -1,6 +1,12 @@
 import prisma from '../config/database';
 import { generateTransactionReference } from '../utils/helpers';
-import { TransactionRequest, TransferRequest, PaymentRequest, TransactionFilters, TransactionAnalytics } from '../types';
+import {
+  TransactionRequest,
+  TransferRequest,
+  PaymentRequest,
+  TransactionFilters,
+  TransactionAnalytics,
+} from '../types';
 import { TransactionType, TransactionStatus } from '@prisma/client';
 import { AccountService } from './accountService';
 import redisClient from '../config/redis';
@@ -28,18 +34,25 @@ export class TransactionService {
     }
     // Fetch from API
     const apiKey = process.env.EXCHANGE_API_KEY;
-    if (!apiKey) throw new Error('Exchange rate API key is missing. Set EXCHANGE_API_KEY in your environment.');
+    if (!apiKey)
+      throw new Error(
+        'Exchange rate API key is missing. Set EXCHANGE_API_KEY in your environment.',
+      );
     const url = `https://v6.exchangerate-api.com/v6/${apiKey}/latest/USD`;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Exchange rate API error: ${response.statusText}`);
     }
-    const data = (await response.json()) as { conversion_rates?: Record<string, number> };
+    const data = (await response.json()) as {
+      conversion_rates?: Record<string, number>;
+    };
     if (!data.conversion_rates) {
       throw new Error('Exchange rate API returned invalid data');
     }
     // Save to Redis
-    await redisClient.set(CACHE_KEY, JSON.stringify(data.conversion_rates), { EX: CACHE_TTL_SECONDS });
+    await redisClient.set(CACHE_KEY, JSON.stringify(data.conversion_rates), {
+      EX: CACHE_TTL_SECONDS,
+    });
     return data.conversion_rates;
   }
 
@@ -69,8 +82,11 @@ export class TransactionService {
    * Handles currency conversion for deposits. Returns the correct amount, currency, and metadata.
    * Uses the cached USD rates table for conversion.
    */
-  private async prepareDepositAmountAndMeta(tx: any, transactionData: TransactionRequest, toAccount: any)
-    : Promise<{ amount: number; currency: string; metadata?: any }> {
+  private async prepareDepositAmountAndMeta(
+    tx: any,
+    transactionData: TransactionRequest,
+    toAccount: any,
+  ): Promise<{ amount: number; currency: string; metadata?: any }> {
     const depositCurrency = transactionData.currency || 'USD';
     const accountCurrency = toAccount.currency;
     if (depositCurrency === accountCurrency) {
@@ -99,7 +115,9 @@ export class TransactionService {
 
       // Handle deposit with possible currency conversion
       if (transactionData.type === TransactionType.DEPOSIT && transactionData.toAccountId) {
-        const toAccount = await tx.account.findUnique({ where: { id: transactionData.toAccountId } });
+        const toAccount = await tx.account.findUnique({
+          where: { id: transactionData.toAccountId },
+        });
         if (!toAccount) {
           throw new Error('Destination account not found');
         }
@@ -141,8 +159,16 @@ export class TransactionService {
       // Handle balance updates based on transaction type
       if (transactionData.type === TransactionType.DEPOSIT && transactionData.toAccountId) {
         await this.updateAccountBalance(tx, transactionData.toAccountId, useAmount, 'add');
-      } else if (transactionData.type === TransactionType.WITHDRAWAL && transactionData.fromAccountId) {
-        await this.updateAccountBalance(tx, transactionData.fromAccountId, transactionData.amount, 'subtract');
+      } else if (
+        transactionData.type === TransactionType.WITHDRAWAL &&
+        transactionData.fromAccountId
+      ) {
+        await this.updateAccountBalance(
+          tx,
+          transactionData.fromAccountId,
+          transactionData.amount,
+          'subtract',
+        );
       }
 
       // Update transaction status to completed
@@ -220,7 +246,12 @@ export class TransactionService {
       });
 
       // Update balances
-      await this.updateAccountBalance(tx, transferData.fromAccountId, transferData.amount, 'subtract');
+      await this.updateAccountBalance(
+        tx,
+        transferData.fromAccountId,
+        transferData.amount,
+        'subtract',
+      );
       await this.updateAccountBalance(tx, transferData.toAccountId, transferData.amount, 'add');
 
       // Update transaction status
@@ -306,7 +337,7 @@ export class TransactionService {
       await this.updateAccountBalance(tx, paymentData.accountId, paymentData.amount, 'subtract');
 
       // Simulate payment processing (in real app, this would call external payment provider)
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Update transaction status
       const updatedTransaction = await tx.transaction.update({
@@ -339,14 +370,17 @@ export class TransactionService {
     });
   }
 
-  async getTransactions(userId: string, filters: TransactionFilters, page: number, limit: number, skip: number) {
+  async getTransactions(
+    userId: string,
+    filters: TransactionFilters,
+    page: number,
+    limit: number,
+    skip: number,
+  ) {
     const where: any = { userId };
 
     if (filters.accountId) {
-      where.OR = [
-        { fromAccountId: filters.accountId },
-        { toAccountId: filters.accountId },
-      ];
+      where.OR = [{ fromAccountId: filters.accountId }, { toAccountId: filters.accountId }];
     }
 
     if (filters.type) {
@@ -428,7 +462,12 @@ export class TransactionService {
     return transaction;
   }
 
-  async getTransactionAnalytics(userId: string, period: string, startDate?: string, endDate?: string): Promise<TransactionAnalytics> {
+  async getTransactionAnalytics(
+    userId: string,
+    period: string,
+    startDate?: string,
+    endDate?: string,
+  ): Promise<TransactionAnalytics> {
     const where: any = { userId };
 
     // Set date range based on period
@@ -449,7 +488,7 @@ export class TransactionService {
           break;
         case 'week':
           dateFilter = {
-            gte: new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay())
+            gte: new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay()),
           };
           break;
         case 'month':
@@ -481,32 +520,41 @@ export class TransactionService {
     const totalVolume = transactions.reduce((sum, t) => sum + parseFloat(t.amount.toString()), 0);
     const averageTransactionSize = totalTransactions > 0 ? totalVolume / totalTransactions : 0;
 
-    const transactionsByType = transactions.reduce((acc, t) => {
-      acc[t.type] = (acc[t.type] || 0) + 1;
-      return acc;
-    }, {} as Record<TransactionType, number>);
+    const transactionsByType = transactions.reduce(
+      (acc, t) => {
+        acc[t.type] = (acc[t.type] || 0) + 1;
+        return acc;
+      },
+      {} as Record<TransactionType, number>,
+    );
 
-    const transactionsByStatus = transactions.reduce((acc, t) => {
-      acc[t.status] = (acc[t.status] || 0) + 1;
-      return acc;
-    }, {} as Record<TransactionStatus, number>);
+    const transactionsByStatus = transactions.reduce(
+      (acc, t) => {
+        acc[t.status] = (acc[t.status] || 0) + 1;
+        return acc;
+      },
+      {} as Record<TransactionStatus, number>,
+    );
 
     // Group by day for daily volume
-    const dailyVolume = transactions.reduce((acc, t) => {
-      const date = t.createdAt.toISOString().split('T')[0];
-      const existing = acc.find(d => d.date === date);
-      if (existing) {
-        existing.volume += parseFloat(t.amount.toString());
-        existing.count += 1;
-      } else {
-        acc.push({
-          date,
-          volume: parseFloat(t.amount.toString()),
-          count: 1,
-        });
-      }
-      return acc;
-    }, [] as Array<{ date: string; volume: number; count: number }>);
+    const dailyVolume = transactions.reduce(
+      (acc, t) => {
+        const date = t.createdAt.toISOString().split('T')[0];
+        const existing = acc.find((d) => d.date === date);
+        if (existing) {
+          existing.volume += parseFloat(t.amount.toString());
+          existing.count += 1;
+        } else {
+          acc.push({
+            date,
+            volume: parseFloat(t.amount.toString()),
+            count: 1,
+          });
+        }
+        return acc;
+      },
+      [] as Array<{ date: string; volume: number; count: number }>,
+    );
 
     return {
       totalTransactions,
@@ -518,7 +566,12 @@ export class TransactionService {
     };
   }
 
-  private async updateAccountBalance(tx: any, accountId: string, amount: number, operation: 'add' | 'subtract') {
+  private async updateAccountBalance(
+    tx: any,
+    accountId: string,
+    amount: number,
+    operation: 'add' | 'subtract',
+  ) {
     const account = await tx.account.findUnique({
       where: { id: accountId },
     });

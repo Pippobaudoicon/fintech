@@ -18,6 +18,7 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     'no-console': 'off',
+    quotes: ['error', 'single', { avoidEscape: true }],
   },
   ignorePatterns: ['dist/', 'coverage/', 'node_modules/', '*.js'],
 };

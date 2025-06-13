@@ -6,7 +6,7 @@ import { AccountType } from '@prisma/client';
 export class AccountService {
   async createAccount(userId: string, accountData: CreateAccountRequest) {
     const accountNumber = generateAccountNumber();
-    
+
     const account = await prisma.account.create({
       data: {
         userId,
@@ -163,13 +163,16 @@ export class AccountService {
 
     const totalBalance = accounts.reduce(
       (sum, account) => sum + parseFloat(account.balance.toString()),
-      0
+      0,
     );
 
-    const accountsByType = accounts.reduce((acc, account) => {
-      acc[account.accountType] = (acc[account.accountType] || 0) + 1;
-      return acc;
-    }, {} as Record<AccountType, number>);
+    const accountsByType = accounts.reduce(
+      (acc, account) => {
+        acc[account.accountType] = (acc[account.accountType] || 0) + 1;
+        return acc;
+      },
+      {} as Record<AccountType, number>,
+    );
 
     const recentTransactions = await prisma.transaction.count({
       where: {
@@ -219,10 +222,10 @@ export class AccountService {
 
   async getAccountBalance(accountId: string, userId: string) {
     const account = await prisma.account.findUnique({
-      where: { 
-        id: accountId, 
+      where: {
+        id: accountId,
         userId: userId,
-        isActive: true 
+        isActive: true,
       },
       select: {
         id: true,
@@ -246,13 +249,19 @@ export class AccountService {
     };
   }
 
-  async getAccountTransactions(accountId: string, userId: string, page: number, limit: number, skip: number) {
+  async getAccountTransactions(
+    accountId: string,
+    userId: string,
+    page: number,
+    limit: number,
+    skip: number,
+  ) {
     // First verify the account belongs to the user
     const account = await prisma.account.findUnique({
-      where: { 
-        id: accountId, 
+      where: {
+        id: accountId,
         userId: userId,
-        isActive: true 
+        isActive: true,
       },
     });
 
@@ -264,10 +273,7 @@ export class AccountService {
     const [transactions, total] = await Promise.all([
       prisma.transaction.findMany({
         where: {
-          OR: [
-            { fromAccountId: accountId },
-            { toAccountId: accountId },
-          ],
+          OR: [{ fromAccountId: accountId }, { toAccountId: accountId }],
         },
         skip,
         take: limit,
@@ -291,10 +297,7 @@ export class AccountService {
       }),
       prisma.transaction.count({
         where: {
-          OR: [
-            { fromAccountId: accountId },
-            { toAccountId: accountId },
-          ],
+          OR: [{ fromAccountId: accountId }, { toAccountId: accountId }],
         },
       }),
     ]);

@@ -1,12 +1,8 @@
-import { Router } from "express";
-import { AccountController } from "../controllers/accountController";
-import { authenticate, authorize, auditLog } from "../middleware/auth";
-import { validate } from "../middleware";
-import {
-  createAccountValidation,
-  paginationValidation,
-  idValidation,
-} from "../validators";
+import { Router } from 'express';
+import { AccountController } from '../controllers/accountController';
+import { authenticate, authorize, auditLog } from '../middleware/auth';
+import { validate } from '../middleware';
+import { createAccountValidation, paginationValidation, idValidation } from '../validators';
 
 /**
  * @swagger
@@ -170,11 +166,11 @@ router.use(authenticate);
  */
 // Customer routes
 router.post(
-  "/",
+  '/',
   createAccountValidation,
   validate,
-  auditLog("CREATE", "ACCOUNT"),
-  accountController.createAccount
+  auditLog('CREATE', 'ACCOUNT'),
+  accountController.createAccount,
 );
 
 /**
@@ -202,7 +198,7 @@ router.post(
  *       401:
  *         description: Unauthorized
  */
-router.get("/", accountController.getUserAccounts);
+router.get('/', accountController.getUserAccounts);
 
 /**
  * @swagger
@@ -268,7 +264,7 @@ router.get('/summary', accountController.getAccountSummary);
  *       401:
  *         description: Unauthorized
  */
-router.get("/:id", idValidation, validate, accountController.getAccountById);
+router.get('/:id', idValidation, validate, accountController.getAccountById);
 
 /**
  * @swagger
@@ -307,12 +303,7 @@ router.get("/:id", idValidation, validate, accountController.getAccountById);
  *       401:
  *         description: Unauthorized
  */
-router.get(
-  "/:id/balance",
-  idValidation,
-  validate,
-  accountController.getAccountBalance
-);
+router.get('/:id/balance', idValidation, validate, accountController.getAccountBalance);
 
 /**
  * @swagger
@@ -373,7 +364,7 @@ router.get(
   idValidation,
   validate,
   paginationValidation,
-  ...accountController.getAccountTransactions
+  ...accountController.getAccountTransactions,
 );
 
 /**
@@ -409,11 +400,11 @@ router.get(
  *         description: Unauthorized
  */
 router.delete(
-  "/:id",
+  '/:id',
   idValidation,
   validate,
-  auditLog("DEACTIVATE", "ACCOUNT"),
-  accountController.deactivateAccount
+  auditLog('DEACTIVATE', 'ACCOUNT'),
+  accountController.deactivateAccount,
 );
 
 /**
@@ -450,10 +441,10 @@ router.delete(
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 // Public account lookup (limited info) for testing
-router.get("/lookup/:accountNumber", accountController.getAccountByNumber);
+router.get('/lookup/:accountNumber', accountController.getAccountByNumber);
 
 // Admin routes
-router.use(authorize("ADMIN"));
+router.use(authorize('ADMIN'));
 
 /**
  * @swagger
@@ -500,12 +491,7 @@ router.use(authorize("ADMIN"));
  *       500:
  *         description: Internal server error
  */
-router.get(
-  "/admin/all",
-  paginationValidation,
-  validate,
-  accountController.getAllAccounts
-);
+router.get('/admin/all', paginationValidation, validate, accountController.getAllAccounts);
 
 /**
  * @swagger
@@ -546,12 +532,7 @@ router.get(
  *       403:
  *         description: Insufficient permissions
  */
-router.get(
-  "/admin/:id",
-  idValidation,
-  validate,
-  accountController.getAccountByIdAdmin
-);
+router.get('/admin/:id', idValidation, validate, accountController.getAccountByIdAdmin);
 
 /**
  * @swagger
@@ -588,11 +569,11 @@ router.get(
  *         description: Insufficient permissions
  */
 router.delete(
-  "/admin/:id",
+  '/admin/:id',
   idValidation,
   validate,
-  auditLog("ADMIN_DEACTIVATE", "ACCOUNT"),
-  accountController.deactivateAccountAdmin
+  auditLog('ADMIN_DEACTIVATE', 'ACCOUNT'),
+  accountController.deactivateAccountAdmin,
 );
 
 export default router;

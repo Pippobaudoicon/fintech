@@ -38,7 +38,13 @@ export const validate = (req: Request, res: Response, next: NextFunction): void 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     res.status(400).json(
-      errorResponse('Validation failed', errors.array().map(err => err.msg).join(', '))
+      errorResponse(
+        'Validation failed',
+        errors
+          .array()
+          .map((err) => err.msg)
+          .join(', '),
+      ),
     );
     return;
   }
@@ -46,12 +52,7 @@ export const validate = (req: Request, res: Response, next: NextFunction): void 
 };
 
 // Error handling middleware
-export const errorHandler = (
-  error: any,
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
+export const errorHandler = (error: any, req: Request, res: Response, next: NextFunction): void => {
   logger.error('Error:', {
     message: error.message,
     stack: error.stack,
@@ -71,9 +72,7 @@ export const errorHandler = (
   }
 
   const statusCode = error.statusCode || 500;
-  const message = config.nodeEnv === 'production'
-    ? 'Internal server error'
-    : error.message;
+  const message = config.nodeEnv === 'production' ? 'Internal server error' : error.message;
 
   res.status(statusCode).json(errorResponse(message));
 };
@@ -91,14 +90,15 @@ export const securityMiddleware = [
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-inline'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", "data:", "https:"],
+        imgSrc: ["'self'", 'data:', 'https:'],
       },
     },
   }),
   cors({
-    origin: config.nodeEnv === 'production'
-      ? ['https://yourdomain.com']
-      : ['http://localhost:3000', 'http://localhost:3001'],
+    origin:
+      config.nodeEnv === 'production'
+        ? ['https://yourdomain.com']
+        : ['http://localhost:3000', 'http://localhost:3001'],
     credentials: true,
   }),
 ];

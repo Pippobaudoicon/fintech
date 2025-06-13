@@ -1,14 +1,14 @@
-import { Router } from "express";
+import { Router } from 'express';
 import { transactionController } from '../controllers/transactionController';
-import { authenticate, authorize, auditLog } from "../middleware/auth";
-import { validate, createFinancialRateLimit } from "../middleware";
+import { authenticate, authorize, auditLog } from '../middleware/auth';
+import { validate, createFinancialRateLimit } from '../middleware';
 import {
   transactionValidation,
   transferValidation,
   paymentValidation,
   paginationValidation,
   idValidation,
-} from "../validators";
+} from '../validators';
 
 /**
  * @swagger
@@ -269,16 +269,16 @@ router.use(authenticate);
  *         description: Unauthorized
  */
 router.post(
-  "/",
+  '/',
   createFinancialRateLimit({
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 10, // 10 transactions per minute
-    message: 'Too many transaction attempts, please try again later'
+    message: 'Too many transaction attempts, please try again later',
   }),
   transactionValidation,
   validate,
-  auditLog("CREATE", "TRANSACTION"),
-  transactionController.createTransaction
+  auditLog('CREATE', 'TRANSACTION'),
+  transactionController.createTransaction,
 );
 
 /**
@@ -323,16 +323,16 @@ router.post(
  *         description: Unauthorized
  */
 router.post(
-  "/transfer",
+  '/transfer',
   createFinancialRateLimit({
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 5, // 5 transfers per minute
-    message: 'Too many transfer attempts, please try again later'
+    message: 'Too many transfer attempts, please try again later',
   }),
   transferValidation,
   validate,
-  auditLog("TRANSFER", "TRANSACTION"),
-  transactionController.transferBetweenAccounts
+  auditLog('TRANSFER', 'TRANSACTION'),
+  transactionController.transferBetweenAccounts,
 );
 
 /**
@@ -380,16 +380,16 @@ router.post(
  *         description: Unauthorized
  */
 router.post(
-  "/payment",
+  '/payment',
   createFinancialRateLimit({
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 3, // 3 payments per minute
-    message: 'Too many payment attempts, please try again later'
+    message: 'Too many payment attempts, please try again later',
   }),
   paymentValidation,
   validate,
-  auditLog("PAYMENT", "TRANSACTION"),
-  transactionController.processPayment
+  auditLog('PAYMENT', 'TRANSACTION'),
+  transactionController.processPayment,
 );
 
 /**
@@ -491,12 +491,7 @@ router.post(
  *       500:
  *         description: Internal server error
  */
-router.get(
-  '/',
-  paginationValidation,
-  validate,
-  ...transactionController.getTransactions
-);
+router.get('/', paginationValidation, validate, ...transactionController.getTransactions);
 
 /**
  * @swagger
@@ -535,12 +530,7 @@ router.get(
  *       401:
  *         description: Unauthorized
  */
-router.get(
-  "/:id",
-  idValidation,
-  validate,
-  transactionController.getTransactionById
-);
+router.get('/:id', idValidation, validate, transactionController.getTransactionById);
 
 /**
  * @swagger
@@ -593,10 +583,10 @@ router.get(
  *       500:
  *         description: Internal server error
  */
-router.get("/analytics", transactionController.getTransactionAnalytics);
+router.get('/analytics', transactionController.getTransactionAnalytics);
 
 // Admin routes
-router.use(authorize("ADMIN"));
+router.use(authorize('ADMIN'));
 
 /**
  * @swagger
@@ -699,12 +689,7 @@ router.use(authorize("ADMIN"));
  *       501:
  *         description: Not implemented yet
  */
-router.get(
-  "/admin/all",
-  paginationValidation,
-  validate,
-  transactionController.getAllTransactions
-);
+router.get('/admin/all', paginationValidation, validate, transactionController.getAllTransactions);
 
 /**
  * @swagger
@@ -745,11 +730,6 @@ router.get(
  *       403:
  *         description: Insufficient permissions
  */
-router.get(
-  "/admin/:id",
-  idValidation,
-  validate,
-  transactionController.getTransactionByIdAdmin
-);
+router.get('/admin/:id', idValidation, validate, transactionController.getTransactionByIdAdmin);
 
 export default router;

@@ -1,9 +1,18 @@
 import { Request, Response } from 'express';
 import { AccountService } from '../services/accountService';
 import { AuthenticatedRequest } from '../types';
-import { successResponse, errorResponse, parsePageAndLimit, calculatePagination } from '../utils/helpers';
+import {
+  successResponse,
+  errorResponse,
+  parsePageAndLimit,
+  calculatePagination,
+} from '../utils/helpers';
 import logger from '../utils/logger';
-import { cacheResponse, accountSummaryCacheKey, transactionListCacheKey } from '../middleware/cache';
+import {
+  cacheResponse,
+  accountSummaryCacheKey,
+  transactionListCacheKey,
+} from '../middleware/cache';
 
 export class AccountController {
   private accountService = new AccountService();
@@ -79,7 +88,7 @@ export class AccountController {
         logger.error('Get account summary error:', error);
         res.status(500).json(errorResponse('Failed to retrieve account summary', error.message));
       }
-    }
+    },
   ];
 
   getAccountBalance = async (req: AuthenticatedRequest, res: Response) => {
@@ -96,28 +105,36 @@ export class AccountController {
     cacheResponse(transactionListCacheKey, 60),
     async (req: AuthenticatedRequest, res: Response) => {
       try {
-        const { page, limit, skip } = parsePageAndLimit(req.query.page as string, req.query.limit as string);
+        const { page, limit, skip } = parsePageAndLimit(
+          req.query.page as string,
+          req.query.limit as string,
+        );
         const { transactions, total } = await this.accountService.getAccountTransactions(
           req.params.id,
           req.user!.id,
           page,
           limit,
-          skip
+          skip,
         );
         const pagination = calculatePagination(total, page, limit);
 
-        res.json(successResponse('Account transactions retrieved successfully', transactions, pagination));
+        res.json(
+          successResponse('Account transactions retrieved successfully', transactions, pagination),
+        );
       } catch (error: any) {
         logger.error('Get account transactions error:', error);
         res.status(404).json(errorResponse('Account not found', error.message));
       }
-    }
+    },
   ];
 
   // Admin endpoints
   getAllAccounts = async (req: Request, res: Response) => {
     try {
-      const { page, limit, skip } = parsePageAndLimit(req.query.page as string, req.query.limit as string);
+      const { page, limit, skip } = parsePageAndLimit(
+        req.query.page as string,
+        req.query.limit as string,
+      );
       const { accounts, total } = await this.accountService.getAllAccounts(page, limit, skip);
       const pagination = calculatePagination(total, page, limit);
 

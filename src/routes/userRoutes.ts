@@ -1,13 +1,13 @@
-import { Router } from "express";
-import { UserController } from "../controllers/userController";
-import { authenticate, authorize } from "../middleware/auth";
-import { validate, createAuthRateLimit } from "../middleware";
+import { Router } from 'express';
+import { UserController } from '../controllers/userController';
+import { authenticate, authorize } from '../middleware/auth';
+import { validate, createAuthRateLimit } from '../middleware';
 import {
   registerValidation,
   loginValidation,
   paginationValidation,
   idValidation,
-} from "../validators";
+} from '../validators';
 
 /**
  * @swagger
@@ -208,15 +208,15 @@ const userController = new UserController();
  */
 // Public routes - Redis-based rate limiting for authentication
 router.post(
-  "/register",
+  '/register',
   createAuthRateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     maxRequests: 5, // 5 registration attempts per 15 minutes
-    message: 'Too many registration attempts, please try again later'
+    message: 'Too many registration attempts, please try again later',
   }),
   registerValidation,
   validate,
-  userController.register
+  userController.register,
 );
 
 /**
@@ -252,15 +252,15 @@ router.post(
  *         description: Too many requests
  */
 router.post(
-  "/login",
+  '/login',
   createAuthRateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     maxRequests: 5, // 5 login attempts per 15 minutes
-    message: 'Too many login attempts, please try again later'
+    message: 'Too many login attempts, please try again later',
   }),
   loginValidation,
   validate,
-  userController.login
+  userController.login,
 );
 
 // Protected routes
@@ -284,7 +284,7 @@ router.use(authenticate);
  *       401:
  *         description: Unauthorized - Invalid token
  */
-router.post("/logout", userController.logout);
+router.post('/logout', userController.logout);
 
 /**
  * @swagger
@@ -309,7 +309,7 @@ router.post("/logout", userController.logout);
  *       401:
  *         description: Unauthorized
  */
-router.get("/profile", userController.getProfile);
+router.get('/profile', userController.getProfile);
 
 /**
  * @swagger
@@ -357,7 +357,7 @@ router.get("/profile", userController.getProfile);
  *       401:
  *         description: Unauthorized
  */
-router.put("/profile", userController.updateProfile);
+router.put('/profile', userController.updateProfile);
 
 /**
  * @swagger
@@ -401,12 +401,7 @@ router.put("/profile", userController.updateProfile);
  *         description: Unauthorized
  */
 // Notifications
-router.get(
-  "/notifications",
-  paginationValidation,
-  validate,
-  userController.getNotifications
-);
+router.get('/notifications', paginationValidation, validate, userController.getNotifications);
 
 /**
  * @swagger
@@ -436,10 +431,7 @@ router.get(
  *       401:
  *         description: Unauthorized
  */
-router.patch(
-  "/notifications/:notificationId/read",
-  userController.markNotificationAsRead
-);
+router.patch('/notifications/:notificationId/read', userController.markNotificationAsRead);
 
 /**
  * @swagger
@@ -459,10 +451,7 @@ router.patch(
  *       401:
  *         description: Unauthorized
  */
-router.patch(
-  "/notifications/read-all",
-  userController.markAllNotificationsAsRead
-);
+router.patch('/notifications/read-all', userController.markAllNotificationsAsRead);
 
 /**
  * @swagger
@@ -551,12 +540,14 @@ router.patch(
  */
 
 // Session management routes (must be after router.use(authenticate))
-router.get("/sessions", userController.listSessions);
-router.delete("/sessions/:sessionId", userController.revokeSession);
-router.post("/sessions/revoke-others", (req, res) => userController.revokeAllOtherSessions(req, res));
+router.get('/sessions', userController.listSessions);
+router.delete('/sessions/:sessionId', userController.revokeSession);
+router.post('/sessions/revoke-others', (req, res) =>
+  userController.revokeAllOtherSessions(req, res),
+);
 
 // Admin routes
-router.use(authorize("ADMIN"));
+router.use(authorize('ADMIN'));
 
 /**
  * @swagger
@@ -601,7 +592,7 @@ router.use(authorize("ADMIN"));
  *       403:
  *         description: Insufficient permissions
  */
-router.get("/", paginationValidation, validate, userController.getAllUsers);
+router.get('/', paginationValidation, validate, userController.getAllUsers);
 
 /**
  * @swagger
@@ -638,7 +629,7 @@ router.get("/", paginationValidation, validate, userController.getAllUsers);
  *       403:
  *         description: Insufficient permissions
  */
-router.get("/:id", idValidation, validate, userController.getUserById);
+router.get('/:id', idValidation, validate, userController.getUserById);
 
 /**
  * @swagger
@@ -689,12 +680,7 @@ router.get("/:id", idValidation, validate, userController.getUserById);
  *       403:
  *         description: Insufficient permissions
  */
-router.patch(
-  "/:id/role",
-  idValidation,
-  validate,
-  userController.updateUserRole
-);
+router.patch('/:id/role', idValidation, validate, userController.updateUserRole);
 
 /**
  * @swagger
@@ -726,6 +712,6 @@ router.patch(
  *       403:
  *         description: Insufficient permissions
  */
-router.delete("/:id", idValidation, validate, userController.deactivateUser);
+router.delete('/:id', idValidation, validate, userController.deactivateUser);
 
 export default router;

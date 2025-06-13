@@ -12,8 +12,8 @@ export const comparePassword = async (password: string, hash: string): Promise<b
 };
 
 export const generateToken = (payload: object): string => {
-  return jwt.sign(payload, config.jwtSecret, { 
-    expiresIn: config.jwtExpiresIn 
+  return jwt.sign(payload, config.jwtSecret, {
+    expiresIn: config.jwtExpiresIn,
   } as jwt.SignOptions);
 };
 
@@ -40,11 +40,7 @@ export const formatCurrency = (amount: number, currency: string = 'USD'): string
   }).format(amount);
 };
 
-export const successResponse = <T>(
-  message: string,
-  data?: T,
-  meta?: any
-): ApiResponse<T> => ({
+export const successResponse = <T>(message: string, data?: T, meta?: any): ApiResponse<T> => ({
   success: true,
   message,
   data,
@@ -60,7 +56,7 @@ export const errorResponse = (message: string, error?: string): ApiResponse => (
 export const parsePageAndLimit = (page?: string, limit?: string) => {
   const parsedPage = parseInt(page || '1', 10);
   const parsedLimit = parseInt(limit || '10', 10);
-  
+
   return {
     page: Math.max(1, parsedPage),
     limit: Math.min(100, Math.max(1, parsedLimit)),

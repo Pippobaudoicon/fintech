@@ -1,14 +1,14 @@
-import swaggerJsdoc from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express";
-import config from "./config";
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
+import config from './config';
 
 // Swagger configuration options
 const swaggerOptions = {
   definition: {
-    openapi: "3.0.0",
+    openapi: '3.0.0',
     info: {
-      title: "Fintech API",
-      version: "1.0.0",
+      title: 'Fintech API',
+      version: '1.0.0',
       description: `
         A comprehensive fintech backend API built with Node.js, TypeScript, Express, and PostgreSQL.
         
@@ -39,53 +39,50 @@ const swaggerOptions = {
         - Error responses include \`success: false\`, \`message\`, and optional \`error\` details
         - Pagination is included for list endpoints with \`pagination\` object
       `,
-      termsOfService: "https://fintechapi.com/terms",
+      termsOfService: 'https://fintechapi.com/terms',
       contact: {
-        name: "API Support",
-        email: "support@fintechapi.com",
-        url: "https://fintechapi.com/support",
+        name: 'API Support',
+        email: 'support@fintechapi.com',
+        url: 'https://fintechapi.com/support',
       },
       license: {
-        name: "MIT",
-        url: "https://opensource.org/licenses/MIT",
+        name: 'MIT',
+        url: 'https://opensource.org/licenses/MIT',
       },
     },
     servers: [
       {
         url:
-          config.nodeEnv === "production"
-            ? "https://api.yourfintech.com"
+          config.nodeEnv === 'production'
+            ? 'https://api.yourfintech.com'
             : `http://localhost:${config.port}`,
-        description:
-          config.nodeEnv === "production"
-            ? "Production server"
-            : "Development server",
+        description: config.nodeEnv === 'production' ? 'Production server' : 'Development server',
       },
     ],
     components: {
       securitySchemes: {
         bearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
-          description: "Enter your JWT token in the format: Bearer <token>",
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'Enter your JWT token in the format: Bearer <token>',
         },
       },
       responses: {
         UnauthorizedError: {
-          description: "Authentication information is missing or invalid",
+          description: 'Authentication information is missing or invalid',
           content: {
-            "application/json": {
+            'application/json': {
               schema: {
-                type: "object",
+                type: 'object',
                 properties: {
                   success: {
-                    type: "boolean",
+                    type: 'boolean',
                     example: false,
                   },
                   message: {
-                    type: "string",
-                    example: "Access token required",
+                    type: 'string',
+                    example: 'Access token required',
                   },
                 },
               },
@@ -93,19 +90,19 @@ const swaggerOptions = {
           },
         },
         ForbiddenError: {
-          description: "Insufficient permissions",
+          description: 'Insufficient permissions',
           content: {
-            "application/json": {
+            'application/json': {
               schema: {
-                type: "object",
+                type: 'object',
                 properties: {
                   success: {
-                    type: "boolean",
+                    type: 'boolean',
                     example: false,
                   },
                   message: {
-                    type: "string",
-                    example: "Insufficient permissions",
+                    type: 'string',
+                    example: 'Insufficient permissions',
                   },
                 },
               },
@@ -113,30 +110,30 @@ const swaggerOptions = {
           },
         },
         ValidationError: {
-          description: "Validation error",
+          description: 'Validation error',
           content: {
-            "application/json": {
+            'application/json': {
               schema: {
-                type: "object",
+                type: 'object',
                 properties: {
                   success: {
-                    type: "boolean",
+                    type: 'boolean',
                     example: false,
                   },
                   message: {
-                    type: "string",
-                    example: "Validation failed",
+                    type: 'string',
+                    example: 'Validation failed',
                   },
                   errors: {
-                    type: "array",
+                    type: 'array',
                     items: {
-                      type: "object",
+                      type: 'object',
                       properties: {
                         field: {
-                          type: "string",
+                          type: 'string',
                         },
                         message: {
-                          type: "string",
+                          type: 'string',
                         },
                       },
                     },
@@ -147,19 +144,19 @@ const swaggerOptions = {
           },
         },
         RateLimitError: {
-          description: "Too many requests",
+          description: 'Too many requests',
           content: {
-            "application/json": {
+            'application/json': {
               schema: {
-                type: "object",
+                type: 'object',
                 properties: {
                   success: {
-                    type: "boolean",
+                    type: 'boolean',
                     example: false,
                   },
                   message: {
-                    type: "string",
-                    example: "Too many requests, please try again later",
+                    type: 'string',
+                    example: 'Too many requests, please try again later',
                   },
                 },
               },
@@ -169,34 +166,34 @@ const swaggerOptions = {
       },
       parameters: {
         PageParam: {
-          name: "page",
-          in: "query",
-          description: "Page number (starts from 1)",
+          name: 'page',
+          in: 'query',
+          description: 'Page number (starts from 1)',
           schema: {
-            type: "integer",
+            type: 'integer',
             minimum: 1,
             default: 1,
           },
         },
         LimitParam: {
-          name: "limit",
-          in: "query",
-          description: "Number of items per page (1-100)",
+          name: 'limit',
+          in: 'query',
+          description: 'Number of items per page (1-100)',
           schema: {
-            type: "integer",
+            type: 'integer',
             minimum: 1,
             maximum: 100,
             default: 10,
           },
         },
         CuidParam: {
-          name: "id",
-          in: "path",
+          name: 'id',
+          in: 'path',
           required: true,
-          description: "CUID identifier",
+          description: 'CUID identifier',
           schema: {
-            type: "string",
-            format: "cuid",
+            type: 'string',
+            format: 'cuid',
           },
         },
       },
@@ -207,7 +204,7 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: ["./src/routes/*.ts", "./src/controllers/*.ts"], // Path to the API files
+  apis: ['./src/routes/*.ts', './src/controllers/*.ts'], // Path to the API files
 };
 
 // Generate Swagger specification
@@ -215,8 +212,8 @@ export const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
 // Swagger UI options
 export const swaggerUiOptions = {
-  customCss: ".swagger-ui .topbar { display: none }",
-  customSiteTitle: "Fintech API Documentation",
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Fintech API Documentation',
   swaggerOptions: {
     persistAuthorization: true,
   },
