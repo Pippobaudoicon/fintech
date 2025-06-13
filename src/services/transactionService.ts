@@ -448,9 +448,9 @@ export class TransactionService {
           };
           break;
         case 'week':
-          const weekStart = new Date(now);
-          weekStart.setDate(now.getDate() - now.getDay());
-          dateFilter = { gte: weekStart };
+          dateFilter = {
+            gte: new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay())
+          };
           break;
         case 'month':
           dateFilter = {

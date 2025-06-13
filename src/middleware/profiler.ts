@@ -17,7 +17,7 @@ export function requestProfiler(thresholdMs = 500) {
                 res.setHeader('X-Response-Time', `${durationMs.toFixed(2)}ms`);
             } catch (e) { /* ignore if already sent */ }
             // Support all overloads of writeHead
-            // @ts-ignore
+            // @ts-expect-error ignore lint error
             return originalWriteHead.apply(this, args);
         };
         // Log slow requests after response is finished

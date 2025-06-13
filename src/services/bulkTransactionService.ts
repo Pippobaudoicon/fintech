@@ -121,7 +121,7 @@ class BulkTransactionService {
 
       let status = "PENDING";
       let successfulTransactions = 0;
-      let failedTransactions = 0;
+      const failedTransactions = 0;
 
       if (minutesElapsed > 2) {
         status = "COMPLETED";
