@@ -501,6 +501,7 @@ router.patch(
  *       401:
  *         description: Unauthorized
  */
+router.get("/sessions", userController.listSessions);
 
 /**
  * @swagger
@@ -530,6 +531,7 @@ router.patch(
  *       404:
  *         description: Session not found
  */
+router.delete("/sessions/:sessionId", userController.revokeSession);
 
 /**
  * @swagger
@@ -549,11 +551,51 @@ router.patch(
  *       401:
  *         description: Unauthorized
  */
-
-// Session management routes (must be after router.use(authenticate))
-router.get("/sessions", userController.listSessions);
-router.delete("/sessions/:sessionId", userController.revokeSession);
 router.post("/sessions/revoke-others", (req, res) => userController.revokeAllOtherSessions(req, res));
+
+/**
+ * @swagger
+ * /api/v1/users/kyc/submit:
+ *   post:
+ *     summary: Submit KYC data
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               kycData:
+ *                 type: object
+ *                 description: KYC data (name, address, id, etc)
+ *           example:
+ *             kycData:
+ *               fullName: "John Doe"
+ *               dateOfBirth: "1990-01-01"
+ *               address: "123 Main St"
+ *               city: "New York"
+ *               country: "USA"
+ *               idNumber: "A1234567"
+ *     responses:
+ *       200:
+ *         description: KYC submitted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *       400:
+ *         description: KYC submission failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/kyc/submit", authenticate, userController.submitKyc);
 
 // Admin routes
 router.use(authorize("ADMIN"));
@@ -727,5 +769,135 @@ router.patch(
  *         description: Insufficient permissions
  */
 router.delete("/:id", idValidation, validate, userController.deactivateUser);
+
+// KYC approval (admin)
+router.post("/:id/kyc/approve", authorize("ADMIN"), userController.approveKyc);
+/**
+ * @swagger
+ * /api/v1/users/kyc/submit:
+ *   post:
+ *     summary: Submit KYC data
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               kycData:
+ *                 type: object
+ *                 description: KYC data (name, address, id, etc)
+ *           example:
+ *             kycData:
+ *               fullName: "John Doe"
+ *               dateOfBirth: "1990-01-01"
+ *               address: "123 Main St"
+ *               city: "New York"
+ *               country: "USA"
+ *               idNumber: "A1234567"
+ *     responses:
+ *       200:
+ *         description: KYC submitted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *       400:
+ *         description: KYC submission failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/kyc/submit", authenticate, userController.submitKyc);
+
+/**
+ * @swagger
+ * /api/v1/users/{id}/kyc/approve:
+ *   post:
+ *     summary: Approve user KYC (Admin only)
+ *     tags: [Admin - Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: KYC approved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *       400:
+ *         description: KYC approval failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Insufficient permissions
+ */
+router.post(":id/kyc/approve", authorize("ADMIN"), userController.approveKyc);
+
+/**
+ * @swagger
+ * /api/v1/users/{id}/kyc/reject:
+ *   post:
+ *     summary: Reject user KYC (Admin only)
+ *     tags: [Admin - Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *         description: User ID
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               reason:
+ *                 type: string
+ *                 description: Reason for rejection
+ *           example:
+ *             reason: "Document not clear"
+ *     responses:
+ *       200:
+ *         description: KYC rejected
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *       400:
+ *         description: KYC rejection failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Insufficient permissions
+ */
+router.post(":id/kyc/reject", authorize("ADMIN"), userController.rejectKyc);
 
 export default router;

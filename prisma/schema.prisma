@@ -73,6 +73,7 @@ model User {
   password    String
   role        UserRole @default(CUSTOMER)
   kycStatus   KYCStatus @default(NOT_STARTED)
+  kycData     Json?
   isActive    Boolean  @default(true)
   isVerified  Boolean  @default(false)
   createdAt   DateTime @default(now())

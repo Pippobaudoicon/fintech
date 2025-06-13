@@ -185,4 +185,43 @@ export class UserController {
       res.status(500).json(errorResponse('Failed to revoke other sessions', error.message));
     }
   };
+
+  /**
+   * User submits KYC data
+   */
+  submitKyc = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const user = await this.userService.submitKyc(req.user!.id, req.body.kycData);
+      res.json(successResponse('KYC submitted successfully', user));
+    } catch (error: any) {
+      logger.error('KYC submission error:', error);
+      res.status(400).json(errorResponse('KYC submission failed', error.message));
+    }
+  };
+
+  /**
+   * Admin approves KYC
+   */
+  approveKyc = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const user = await this.userService.approveKyc(req.params.id);
+      res.json(successResponse('KYC approved', user));
+    } catch (error: any) {
+      logger.error('KYC approval error:', error);
+      res.status(400).json(errorResponse('KYC approval failed', error.message));
+    }
+  };
+
+  /**
+   * Admin rejects KYC
+   */
+  rejectKyc = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const user = await this.userService.rejectKyc(req.params.id, req.body.reason);
+      res.json(successResponse('KYC rejected', user));
+    } catch (error: any) {
+      logger.error('KYC rejection error:', error);
+      res.status(400).json(errorResponse('KYC rejection failed', error.message));
+    }
+  };
 }

@@ -90,6 +90,12 @@ export class TransactionService {
   }
 
   async createTransaction(userId: string, transactionData: TransactionRequest) {
+    //TODO KYC check when ultimated (remember to uncomment this and update test cases)
+    // const user = await prisma.user.findUnique({ where: { id: userId } });
+    // if (!user || user.kycStatus !== 'APPROVED') {
+    //   throw new Error('KYC not approved. Please complete KYC verification to perform transactions.');
+    // }
+
     const reference = generateTransactionReference();
 
     return prisma.$transaction(async (tx) => {
@@ -178,6 +184,12 @@ export class TransactionService {
   }
 
   async transferBetweenAccounts(userId: string, transferData: TransferRequest) {
+    // KYC check
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || user.kycStatus !== 'APPROVED') {
+      throw new Error('KYC not approved. Please complete KYC verification to perform transfers.');
+    }
+
     const reference = generateTransactionReference();
 
     return prisma.$transaction(async (tx) => {
@@ -267,6 +279,12 @@ export class TransactionService {
   }
 
   async processPayment(userId: string, paymentData: PaymentRequest) {
+    // KYC check
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || user.kycStatus !== 'APPROVED') {
+      throw new Error('KYC not approved. Please complete KYC verification to process payments.');
+    }
+
     const reference = generateTransactionReference();
 
     return prisma.$transaction(async (tx) => {

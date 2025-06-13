@@ -210,4 +210,50 @@ export class UserService {
       where: { expiresAt: { lt: new Date() } },
     });
   }
+
+  /**
+   * User submits KYC data. Sets kycStatus to IN_PROGRESS and stores kycData.
+   */
+  async submitKyc(userId: string, kycData: any) {
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        kycData,
+        kycStatus: 'IN_PROGRESS',
+      },
+    });
+    return sanitizeUser(user);
+  }
+
+  /**
+   * Admin approves KYC. Sets kycStatus to APPROVED.
+   */
+  async approveKyc(userId: string) {
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { kycStatus: 'APPROVED' },
+    });
+    return sanitizeUser(user);
+  }
+
+  /**
+   * Admin rejects KYC. Sets kycStatus to REJECTED. Optionally stores rejection reason in kycData.
+   */
+  async rejectKyc(userId: string, reason?: string) {
+    const existingUser = await prisma.user.findUnique({ where: { id: userId } });
+    if (!existingUser) throw new Error('User not found');
+    let baseKycData = {};
+    if (existingUser.kycData && typeof existingUser.kycData === 'object' && !Array.isArray(existingUser.kycData)) {
+      baseKycData = existingUser.kycData;
+    }
+    const newKycData = reason ? { ...baseKycData, rejectionReason: reason } : baseKycData;
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        kycStatus: 'REJECTED',
+        kycData: newKycData,
+      },
+    });
+    return sanitizeUser(user);
+  }
 }
